@@ -11,11 +11,23 @@
         <testsuite name="Feature">
             <directory>tests/Feature</directory>
         </testsuite>
+        <testsuite name="Modules">
+            <directory>./modules/*/Tests</directory>
+        </testsuite>
     </testsuites>
     <source>
         <include>
             <directory>app</directory>
+            <directory>modules</directory>
         </include>
+        <exclude>
+            <directory suffix=".php">./modules/*/src/Http/routes</directory>
+            <directory suffix=".php">./modules/*/tests</directory>
+            <directory suffix=".php">./modules/*/Providers</directory>
+            <directory suffix=".php">./modules/*/database/migrations</directory>
+
+            <!-- Filter down additional unwanted subdirectories here -->
+        </exclude>
     </source>
     <php>
         <env name="APP_ENV" value="testing"/>
