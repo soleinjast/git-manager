@@ -9,4 +9,5 @@ use Modules\Token\src\Models\GithubToken;
 interface TokenRepositoryInterface
 {
     public function create(CreateTokenDetails $createTokenDetails) : TokenDto;
+    public function fetch() : array;
 }

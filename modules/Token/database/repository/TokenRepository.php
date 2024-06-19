@@ -6,6 +6,7 @@ use Exception;
 use Modules\Token\src\DTOs\CreateTokenDetails;
 use Modules\Token\src\DTOs\CreateTokenDetailsInterface;
 use Modules\Token\src\DTOs\TokenDto;
+use Modules\Token\src\Enumerations\GithubTokenApiResponses;
 use Modules\Token\src\Exceptions\TokenCreationFailedException;
 use Modules\Token\src\Models\GithubToken;
 
@@ -25,7 +26,7 @@ class TokenRepository implements TokenRepositoryInterface
             return TokenDto::fromEloquent($githubToken);
         } catch (Exception $exception) {
             report($exception);
-            throw new TokenCreationFailedException("Token creation process failed!");
+            throw new TokenCreationFailedException(GithubTokenApiResponses::TokenCreationFailed);
         }
     }
 

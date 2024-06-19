@@ -7,4 +7,6 @@ class GithubTokenApiResponses
     const InvalidToken = 'Invalid token';
     const ConnectionError = 'Connection error';
     const ServerError = 'Server error';
+
+    const TokenCreationFailed = 'Token creation failed';
 }
