@@ -3,6 +3,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Modules\Repository\src\Http\Controllers\CreateRepositoryController;
+use Modules\Repository\src\Http\Controllers\FetchRepositoryController;
 use Modules\Repository\src\Http\Controllers\UpdateRepositoryController;
 use Modules\Repository\src\Middleware\CheckAccessibility;
 use Modules\Repository\src\Middleware\CheckUniqueRepository;
@@ -24,3 +25,5 @@ Route::post('/{id}/update', UpdateRepositoryController::class)
         ValidateRepositoryId::class,
         CheckAccessibility::class
     ])->name('update');
+
+Route::get('fetch', FetchRepositoryController::class)->name('fetch');

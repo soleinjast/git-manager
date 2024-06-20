@@ -7,7 +7,6 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Schema;
 use Mockery;
@@ -15,6 +14,7 @@ use Modules\Repository\database\repository\RepositoryRepository;
 use Modules\Repository\database\repository\RepositoryRepositoryInterface;
 use Modules\Repository\src\Enumerations\RepositoryResponseEnums;
 use Modules\Repository\src\Exceptions\RepositoryCreationFailedException;
+use Modules\Repository\src\Exceptions\RepositoryRetrievalFailedException;
 use Modules\Repository\src\Exceptions\RepositoryUpdateFailedException;
 use Modules\Repository\src\Middleware\CheckUniqueRepository;
 use Modules\Repository\src\Middleware\ValidateRepositoryId;
@@ -372,5 +372,114 @@ class RepositoryControllerTest extends TestCase
         // Assert that the response status is 500
         $this->assertInstanceOf(JsonResponse::class, $response);
         $this->assertEquals(500, $response->status());
+    }
+
+    public function testCanRetrieveAllRepositories()
+    {
+        $githubTokens = GithubToken::factory()->count(2)->create();
+        Repository::factory()->create([
+            'owner' => 'test',
+            'name' => 'test',
+            'github_token_id' => $githubTokens[0]->id,
+            'deadline' => now()->addDay(),
+        ]);
+        Repository::factory()->create([
+            'owner' => 'test',
+            'name' => 'test',
+            'github_token_id' => $githubTokens[1]->id,
+            'deadline' => now()->addDay(),
+        ]);
+        $response = $this->get(route('repository.fetch'));
+        $this->assertCount(2, $response->json()['data']);
+        $response->assertStatus(200);
+    }
+
+    // Test successful retrieval of repositories with search by name
+    public function testCanRetrieveRepositoriesWithSearchByName()
+    {
+        $githubTokens = GithubToken::factory()->count(2)->create();
+        Repository::factory()->create([
+            'owner' => 'test-owner',
+            'name' => 'test-repo-1',
+            'github_token_id' => $githubTokens[0]->id,
+            'deadline' => now()->addDay(),
+        ]);
+        Repository::factory()->create([
+            'owner' => 'test-owner',
+            'name' => 'another-repo',
+            'github_token_id' => $githubTokens[1]->id,
+            'deadline' => now()->addDay(),
+        ]);
+        $response = $this->get(route('repository.fetch', ['search_name' => 'test-repo']));
+        $this->assertCount(1, $response->json()['data']);
+        $response->assertStatus(200);
+    }
+    public function testCanRetrieveRepositoriesWithSearchByOwner()
+    {
+        $githubTokens = GithubToken::factory()->count(2)->create();
+        Repository::factory()->create([
+            'owner' => 'owner1',
+            'name' => 'repo-1',
+            'github_token_id' => $githubTokens[0]->id,
+            'deadline' => now()->addDay(),
+        ]);
+        Repository::factory()->create([
+            'owner' => 'owner2',
+            'name' => 'repo-2',
+            'github_token_id' => $githubTokens[1]->id,
+            'deadline' => now()->addDay(),
+        ]);
+        $response = $this->get(route('repository.fetch', ['search_owner' => 'owner1']));
+        $this->assertCount(1, $response->json()['data']);
+        $response->assertStatus(200);
+    }
+
+    public function testCanRetrieveRepositoriesWithSearchByNameAndOwner()
+    {
+        $githubTokens = GithubToken::factory()->count(2)->create();
+        Repository::factory()->create([
+            'owner' => 'owner1',
+            'name' => 'repo-1',
+            'github_token_id' => $githubTokens[0]->id,
+            'deadline' => now()->addDay(),
+        ]);
+        Repository::factory()->create([
+            'owner' => 'owner2',
+            'name' => 'repo-2',
+            'github_token_id' => $githubTokens[1]->id,
+            'deadline' => now()->addDay(),
+        ]);
+        $response = $this->get(route('repository.fetch', ['search_name' => 'repo-1', 'search_owner' => 'owner1']));
+        $this->assertCount(1, $response->json()['data']);
+        $response->assertStatus(200);
+    }
+    public function testErrorHandlingDuringRepositoryRetrieval()
+    {
+        // Mock the RepositoryRepository to throw an exception
+        $repositoryRepositoryMock = Mockery::mock(RepositoryRepositoryInterface::class);
+        $repositoryRepositoryMock->shouldReceive('fetchAll')
+            ->andThrow(new RepositoryRetrievalFailedException(RepositoryResponseEnums::REPOSITORY_RETRIEVAL_FAILED, 500));
+
+        // Bind the mock to the service container
+        $this->app->instance(RepositoryRepositoryInterface::class, $repositoryRepositoryMock);
+
+        // Call the route
+        $response = $this->get(route('repository.fetch'));
+
+
+        // Assert the response
+        $response->assertStatus(500);
+        $response->assertJson(['message' => RepositoryResponseEnums::REPOSITORY_RETRIEVAL_FAILED]);
+    }
+
+    public function testDatabaseQueryFailureOnFetchMethod()
+    {
+        Schema::drop('repositories');
+        // Create the RepositoryRepository instance
+        $repository = app(RepositoryRepositoryInterface::class);
+        // Expect an exception to be thrown
+        $this->expectException(RepositoryRetrievalFailedException::class);
+        // When we fetch the repositories
+        $repository->fetchAll();
     }
 }
