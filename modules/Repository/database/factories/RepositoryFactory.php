@@ -14,7 +14,8 @@ class RepositoryFactory extends Factory
         return [
             'owner' => $this->faker->userName,
             'name' => $this->faker->slug,
-            'github_token_id' => 1
+            'github_token_id' => 1,
+            'deadline' => $this->faker->dateTimeBetween('now', '+1 year')->format('Y-m-d H:i:s'),
         ];
     }
 }

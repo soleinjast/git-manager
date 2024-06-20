@@ -22,4 +22,17 @@ class RepositoryDto
             $repository->deadline
         );
     }
+
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'owner' => $this->owner,
+            'name' => $this->name,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
+            'github_token_id' => $this->github_token_id,
+            'deadline' => $this->deadline
+        ];
+    }
 }

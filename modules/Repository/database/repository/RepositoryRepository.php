@@ -6,9 +6,11 @@ use Exception;
 use Modules\Repository\src\DTOs\CreateRepositoryDetails;
 use Modules\Repository\src\DTOs\CreateRepositoryDetailsInterface;
 use Modules\Repository\src\DTOs\RepositoryDto;
+use Modules\Repository\src\DTOs\RepositoryItemsData;
 use Modules\Repository\src\DTOs\UpdateRepositoryDetailsInterface;
 use Modules\Repository\src\Enumerations\RepositoryResponseEnums;
 use Modules\Repository\src\Exceptions\RepositoryCreationFailedException;
+use Modules\Repository\src\Exceptions\RepositoryRetrievalFailedException;
 use Modules\Repository\src\Exceptions\RepositoryUpdateFailedException;
 use Modules\Repository\src\Models\Repository;
 
@@ -43,6 +45,23 @@ class RepositoryRepository implements RepositoryRepositoryInterface
         }catch (Exception $exception){
             report($exception);
             throw new RepositoryUpdateFailedException(RepositoryResponseEnums::REPOSITORY_UPDATE_FAILED, 500);
+        }
+    }
+
+    /**
+     * @throws RepositoryRetrievalFailedException
+     */
+    public function fetchAll(?string $searchName = null, ?string $searchOwner = null): array
+    {
+        try {
+            $repositories = Repository::searchByName($searchName)
+                ->searchByOwner($searchOwner)
+                ->orderBy('created_at', 'DESC')
+                ->get();
+            return RepositoryItemsData::fromRepositoryEloquentCollection($repositories);
+        }catch (\Exception $exception){
+            report($exception);
+            throw new RepositoryRetrievalFailedException(RepositoryResponseEnums::REPOSITORY_RETRIEVAL_FAILED, 500);
         }
     }
 }
