@@ -34,4 +34,26 @@ class GithubService
             throw new ConnectionException(GithubApiResponses::CONNECTION_ERROR);
         }
     }
+
+    /**
+     * Fetch branches of the repository.
+     *
+     * @return array
+     * @throws ConnectionException
+     * @throws Exception
+     */
+    public function fetchBranches(): array
+    {
+        try {
+            $response = Http::withToken($this->token)
+                ->get("https://api.github.com/repos/{$this->owner}/{$this->name}/branches");
+
+            if ($response->successful()) {
+                return $response->json();
+            }
+            throw new Exception(GithubApiResponses::SERVER_ERROR);
+        } catch (ConnectionException $e) {
+            throw new ConnectionException(GithubApiResponses::CONNECTION_ERROR);
+        }
+    }
 }

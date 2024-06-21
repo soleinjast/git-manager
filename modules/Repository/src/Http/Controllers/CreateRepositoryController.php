@@ -4,16 +4,18 @@ namespace Modules\Repository\src\Http\Controllers;
 
 use App\Traits\ApiResponse;
 use Exception;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Http\JsonResponse;
 use Modules\Repository\database\repository\RepositoryRepositoryInterface;
 use Modules\Repository\src\DTOs\CreateRepositoryDetails;
 use Modules\Repository\src\DTOs\StoreRepositoryResponse;
+use Modules\Repository\src\Events\RepositoryCreated;
 use Modules\Repository\src\Exceptions\RepositoryCreationFailedException;
 
 class CreateRepositoryController
 {
     use ApiResponse;
-    public function __construct(protected RepositoryRepositoryInterface $repositoryRepository)
+    public function __construct(protected RepositoryRepositoryInterface $repositoryRepository, protected Dispatcher $events)
     {
 
     }
@@ -29,6 +31,7 @@ class CreateRepositoryController
             );
             $repositoryDto = $this->repositoryRepository->create($createRepositoryDetails);
             $storeResponseData = new StoreRepositoryResponse($repositoryDto->owner, $repositoryDto->name);
+            $this->events->dispatch(new RepositoryCreated($repositoryDto));
             return $this->successResponse($storeResponseData->toArray());
         }catch (RepositoryCreationFailedException $exception) {
             report($exception);

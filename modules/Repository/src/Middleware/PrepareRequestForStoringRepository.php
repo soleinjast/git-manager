@@ -41,7 +41,7 @@ class PrepareRequestForStoringRepository
         return [
             'owner' => 'required|string',
             'name' => 'required|string',
-            'deadline' => 'date|after:tomorrow',
+            'deadline' => 'required|date|after:tomorrow',
             'github_token_id' => 'required|exists:github_tokens,id'
         ];
     }

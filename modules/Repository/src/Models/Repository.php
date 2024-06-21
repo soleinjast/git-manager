@@ -5,7 +5,9 @@ namespace Modules\Repository\src\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Modules\Repository\database\factories\RepositoryFactory;
+use Modules\Token\src\Models\GithubToken;
 
 /**
  * @property mixed $id
@@ -15,6 +17,7 @@ use Modules\Repository\database\factories\RepositoryFactory;
  * @property mixed $updated_at
  * @property mixed $github_token_id
  * @property mixed $deadline
+
  * @method static searchByName(string|null $search)
  * @method static searchByOwner(string|null $search)
  */
@@ -49,6 +52,11 @@ class Repository extends Model
             return $query->where('owner', 'like', '%' . $searchOwner . '%');
         }
         return $query;
+    }
+
+    public function token(): BelongsTo
+    {
+        return $this->belongsTo(GithubToken::class, 'github_token_id');
     }
 
 }

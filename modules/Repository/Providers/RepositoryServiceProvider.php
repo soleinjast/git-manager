@@ -15,6 +15,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->register(RouteServiceProvider::class);
         $this->app->bind(RepositoryRepositoryInterface::class, RepositoryRepository::class);
         $this->app->bind(CreateRepositoryDetailsInterface::class, CreateRepositoryDetails::class);
+        $this->app->register(EventServiceProvider::class);
     }
     public function boot(): void
     {
