@@ -4,6 +4,8 @@ namespace Modules\Repository\tests\Controllers;
 
 use App\Enumerations\GithubApiResponses;
 use App\Services\GithubService;
+use Exception;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\JsonResponse;
@@ -12,10 +14,15 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Schema;
 use Mockery;
+use Modules\Repository\database\repository\BranchRepository;
+use Modules\Repository\database\repository\BranchRepositoryInterface;
 use Modules\Repository\database\repository\RepositoryRepository;
 use Modules\Repository\database\repository\RepositoryRepositoryInterface;
+use Modules\Repository\src\DTOs\BranchDto;
+use Modules\Repository\src\DTOs\CreateBranchDetails;
 use Modules\Repository\src\DTOs\RepositoryDto;
 use Modules\Repository\src\Enumerations\RepositoryResponseEnums;
+use Modules\Repository\src\Events\BranchCreated;
 use Modules\Repository\src\Events\RepositoryCreated;
 use Modules\Repository\src\Exceptions\RepositoryCreationFailedException;
 use Modules\Repository\src\Exceptions\RepositoryRetrievalFailedException;
@@ -23,6 +30,7 @@ use Modules\Repository\src\Exceptions\RepositoryUpdateFailedException;
 use Modules\Repository\src\Listeners\StoreBranches;
 use Modules\Repository\src\Middleware\CheckUniqueRepository;
 use Modules\Repository\src\Middleware\ValidateRepositoryId;
+use Modules\Repository\src\Models\Branch;
 use Modules\Repository\src\Models\Repository;
 use Modules\Token\src\Models\GithubToken;
 use Tests\TestCase;
@@ -514,17 +522,12 @@ class RepositoryControllerTest extends TestCase
     public function testStoreBranchesListener()
     {
         $githubToken = GithubToken::factory()->create();
+
         Http::fake([
             'https://api.github.com/repos/test-owner/test-name/branches' => Http::response([
                 ['name' => 'main'],
                 ['name' => 'dev'],
             ], 200),
-        ]);
-        Http::fake([
-            'https://api.github.com/user' => Http::response([
-                'login' => $githubToken->login_name,
-                'id' => $githubToken->githubId
-            ], 200)
         ]);
 
         $repository = Repository::factory()->create([
@@ -533,10 +536,22 @@ class RepositoryControllerTest extends TestCase
             'github_token_id' => $githubToken->id,
             'deadline' => now()->addDays(1),
         ]);
+
         $repositoryDto = RepositoryDto::fromEloquent($repository);
         $event = new RepositoryCreated($repositoryDto);
 
-        $listener = new StoreBranches();
+        $branchRepositoryMock = Mockery::mock(BranchRepositoryInterface::class);
+        $branchRepositoryMock->shouldReceive('create')
+            ->twice()
+            ->andReturnUsing(function (CreateBranchDetails $details) {
+                return new BranchDto(
+                    Branch::query()->create($details->toArray())->id,
+                    $details->repositoryId,
+                    $details->branchName
+                );
+            });
+
+        $listener = new StoreBranches(app('events'), $branchRepositoryMock);
         $listener->handle($event);
 
         $this->assertDatabaseCount('branches', 2);
@@ -567,9 +582,13 @@ class RepositoryControllerTest extends TestCase
             throw new ConnectionException('Connection error');
         });
 
-        $event = new RepositoryCreated(RepositoryDto::fromEloquent($repository));
-        $listener = new StoreBranches();
+        $repositoryDto = RepositoryDto::fromEloquent($repository);
+        $event = new RepositoryCreated($repositoryDto);
 
+        $branchRepositoryMock = Mockery::mock(BranchRepositoryInterface::class);
+        $branchRepositoryMock->shouldReceive('create')->never();
+
+        $listener = new StoreBranches(app('events'), $branchRepositoryMock);
         $listener->handle($event);
 
         $this->assertDatabaseCount('branches', 0); // No branches should be created
@@ -590,15 +609,77 @@ class RepositoryControllerTest extends TestCase
         ]);
 
         Http::fake(function () {
-            throw new \Exception('General error');
+            throw new Exception('General error');
         });
 
-        $event = new RepositoryCreated(RepositoryDto::fromEloquent($repository));
-        $listener = new StoreBranches();
+        $repositoryDto = RepositoryDto::fromEloquent($repository);
+        $event = new RepositoryCreated($repositoryDto);
 
+        $branchRepositoryMock = Mockery::mock(BranchRepositoryInterface::class);
+        $branchRepositoryMock->shouldReceive('create')->never();
+
+        $listener = new StoreBranches(app('events'), $branchRepositoryMock);
         $listener->handle($event);
 
         $this->assertDatabaseCount('branches', 0); // No branches should be created
+    }
+    public function testCreateBranchThrowsException()
+    {
+        $this->expectException(Exception::class);
+
+        $branchRepository = new BranchRepository();
+
+        // Simulate a database connection error by dropping the branches table
+        Schema::drop('branches');
+
+        $createBranchDetails = new CreateBranchDetails(
+            repositoryId: 1,
+            branchName: 'main'
+        );
+
+        $branchRepository->create($createBranchDetails);
+    }
+
+    public function testBranchDtoFromEloquent()
+    {
+        $githubToken = GithubToken::factory()->create();
+        $repository = Repository::factory()->create(); // Ensure repository exists
+
+        $branch = Branch::factory()->create([
+            'repository_id' => $repository->id,
+            'name' => 'main'
+        ]);
+
+        $branchDto = BranchDto::fromEloquent($branch);
+
+        $this->assertInstanceOf(BranchDto::class, $branchDto);
+        $this->assertEquals($branch->id, $branchDto->id);
+        $this->assertEquals($branch->repository_id, $branchDto->repositoryId);
+        $this->assertEquals($branch->name, $branchDto->name);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function testCreateBranchSuccessfully()
+    {
+        $githubToken = GithubToken::factory()->create();
+        $repository = Repository::factory()->create(); // Ensure repository exists
+
+        $branchRepository = new BranchRepository();
+
+        $createBranchDetails = new CreateBranchDetails(
+            repositoryId: $repository->id,
+            branchName: 'main'
+        );
+
+        $branchDto = $branchRepository->create($createBranchDetails);
+
+        $this->assertInstanceOf(BranchDto::class, $branchDto);
+        $this->assertDatabaseHas('branches', [
+            'repository_id' => $branchDto->repositoryId,
+            'name' => $branchDto->name,
+        ]);
     }
     public function test_fetch_branches_throws_general_exception()
     {
@@ -609,9 +690,59 @@ class RepositoryControllerTest extends TestCase
             'https://api.github.com/repos/fake-owner/fake-repo/branches' => Http::response([], 500)
         ]);
 
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
         $this->expectExceptionMessage(GithubApiResponses::SERVER_ERROR);
 
         $githubService->fetchBranches();
+    }
+
+    public function test_dispatches_branch_created_event()
+    {
+        // Create a fake GitHub token and repository
+        $githubToken = GithubToken::factory()->create();
+
+        // Fake the HTTP response for fetching branches from GitHub
+        Http::fake([
+            'https://api.github.com/repos/test-owner/test-name/branches' => Http::response([
+                ['name' => 'main'],
+            ], 200),
+        ]);
+
+        // Create a repository
+        $repository = Repository::factory()->create([
+            'owner' => 'test-owner',
+            'name' => 'test-name',
+            'github_token_id' => $githubToken->id,
+            'deadline' => now()->addDays(1),
+        ]);
+
+        // Create a RepositoryDto from the repository
+        $repositoryDto = RepositoryDto::fromEloquent($repository);
+
+        // Create the RepositoryCreated event
+        $event = new RepositoryCreated($repositoryDto);
+
+        // Mock the BranchRepositoryInterface
+        $branchRepositoryMock = Mockery::mock(BranchRepositoryInterface::class);
+        $branchRepositoryMock->shouldReceive('create')
+            ->andReturnUsing(function ($createBranchDetails) {
+                return new BranchDto(1, $createBranchDetails->repositoryId, $createBranchDetails->branchName);
+            });
+
+        // Mock the event dispatcher
+        $dispatcherMock = Mockery::mock(Dispatcher::class);
+        $dispatcherMock->shouldReceive('dispatch')
+            ->once()
+            ->with(Mockery::type(BranchCreated::class));
+
+        // Bind the mock to the service container
+        $this->app->instance(BranchRepositoryInterface::class, $branchRepositoryMock);
+        $this->app->instance(Dispatcher::class, $dispatcherMock);
+
+        // Create the StoreBranches listener
+        $listener = new StoreBranches($dispatcherMock, $branchRepositoryMock);
+
+        // Handle the event
+        $listener->handle($event);
     }
 }

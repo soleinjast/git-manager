@@ -3,6 +3,8 @@
 namespace Modules\Repository\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Modules\Repository\database\repository\BranchRepository;
+use Modules\Repository\database\repository\BranchRepositoryInterface;
 use Modules\Repository\database\repository\RepositoryRepository;
 use Modules\Repository\database\repository\RepositoryRepositoryInterface;
 use Modules\Repository\src\DTOs\CreateRepositoryDetails;
@@ -15,6 +17,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->register(RouteServiceProvider::class);
         $this->app->bind(RepositoryRepositoryInterface::class, RepositoryRepository::class);
         $this->app->bind(CreateRepositoryDetailsInterface::class, CreateRepositoryDetails::class);
+        $this->app->bind(BranchRepositoryInterface::class, BranchRepository::class);
         $this->app->register(EventServiceProvider::class);
     }
     public function boot(): void

@@ -11,6 +11,7 @@ use Modules\Repository\database\factories\BranchFactory;
 /**
  * @property int $repository_id
  * @property string $name
+ * @property int $id
  */
 class Branch extends Model
 {

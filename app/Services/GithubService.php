@@ -56,4 +56,48 @@ class GithubService
             throw new ConnectionException(GithubApiResponses::CONNECTION_ERROR);
         }
     }
+
+    /**
+     * Fetch commits of the repository.
+     *
+     * @param string $branch
+     * @return array
+     * @throws ConnectionException
+     * @throws Exception
+     */
+    /**
+     * Fetch commits of the repository.
+     *
+     * @param string $branch
+     * @return array
+     * @throws ConnectionException
+     * @throws Exception
+     */
+    public function fetchCommits(string $branch): array
+    {
+        $commits = [];
+        $page = 1;
+        try {
+            do {
+                $response = Http::withToken($this->token)
+                    ->get("https://api.github.com/repos/{$this->owner}/{$this->name}/commits", [
+                        'sha' => $branch,
+                        'page' => $page,
+                        'per_page' => 100,
+                    ]);
+                if ($response->successful()) {
+                    $pageCommits = $response->json();
+                    $commits = array_merge($commits, $pageCommits);
+                    $page++;
+                } else {
+                    throw new Exception(GithubApiResponses::SERVER_ERROR);
+                }
+            } while (count($pageCommits) === 100);
+
+            return $commits;
+        } catch (ConnectionException $e) {
+            throw new ConnectionException(GithubApiResponses::CONNECTION_ERROR);
+        }
+    }
+
 }
