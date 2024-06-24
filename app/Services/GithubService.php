@@ -56,15 +56,6 @@ class GithubService
             throw new ConnectionException(GithubApiResponses::CONNECTION_ERROR);
         }
     }
-
-    /**
-     * Fetch commits of the repository.
-     *
-     * @param string $branch
-     * @return array
-     * @throws ConnectionException
-     * @throws Exception
-     */
     /**
      * Fetch commits of the repository.
      *
@@ -97,6 +88,43 @@ class GithubService
             return $commits;
         } catch (ConnectionException $e) {
             throw new ConnectionException(GithubApiResponses::CONNECTION_ERROR);
+        }
+    }
+    public function getCollaborators(): array
+    {
+        try {
+            $response = Http::withToken($this->token)
+                ->get("https://api.github.com/repos/{$this->owner}/{$this->name}/collaborators");
+            if (!$response->successful()) {
+                return [];
+            }
+            $collaborators = $response->json();
+            foreach ($collaborators as &$collaborator) {
+                $userDetails = $this->getUserDetails($collaborator['login']);
+                $collaborator['name'] = $userDetails['name'] ?? null;
+            }
+
+            return $collaborators;
+
+        } catch (ConnectionException $e) {
+            report($e);
+            return [];
+        }
+    }
+    public function getUserDetails(string $username): array
+    {
+        try {
+            $response = Http::withToken($this->token)
+                ->get("https://api.github.com/users/{$username}");
+
+            if ($response->successful()) {
+                return $response->json();
+            }
+
+            return [];
+        } catch (ConnectionException $e) {
+            report($e);
+            return [];
         }
     }
 
