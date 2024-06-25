@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Modules\Token\database\factories\GithubTokenFactory;
 
 /**
+ * @property mixed $id
  * @property string $token
  * @property mixed $login_name
  * @property mixed $githubId

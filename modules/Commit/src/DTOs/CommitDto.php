@@ -2,6 +2,7 @@
 
 namespace Modules\Commit\src\DTOs;
 
+use Illuminate\Support\Collection;
 use Modules\Commit\src\Models\Commit;
 
 class CommitDto
@@ -14,7 +15,12 @@ class CommitDto
         public string $author,
         public string $date
     ) {}
-
+    public static function fromEloquentCollection(Collection $commits): array
+    {
+        return $commits->map(function (Commit $commit) {
+            return self::fromEloquent($commit)->toArray();
+        })->toArray();
+    }
     public static function fromEloquent(Commit $commit): CommitDto
     {
         return new self(
@@ -25,5 +31,17 @@ class CommitDto
             $commit->author,
             $commit->date->toDateTimeString(),
         );
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'repository_id' => $this->repositoryId,
+            'sha' => $this->sha,
+            'message' => $this->message,
+            'author' => $this->author,
+            'date' => date('d-m-Y', strtotime($this->date)),
+        ];
     }
 }

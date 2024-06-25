@@ -2,6 +2,7 @@
 
 namespace Modules\Commit\src\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -36,5 +37,20 @@ class Commit extends Model
     public function repository(): BelongsTo
     {
         return $this->belongsTo(Repository::class);
+    }
+
+    public function scopeFilterByAuthor(Builder $query, ?string $author): Builder
+    {
+        return $author ? $query->where('author_git_id', $author) : $query;
+    }
+
+    public function scopeFilterByStartDate(Builder $query, ?string $startDate): Builder
+    {
+        return $startDate ? $query->whereDate('date', '>=', $startDate) : $query;
+    }
+
+    public function scopeFilterByEndDate(Builder $query, ?string $endDate): Builder
+    {
+        return $endDate ? $query->whereDate('date', '<=', $endDate) : $query;
     }
 }

@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Modules\Commit\src\Models\Commit;
 use Modules\Repository\database\factories\RepositoryFactory;
 use Modules\Token\src\Models\GithubToken;
 
@@ -57,6 +59,11 @@ class Repository extends Model
     public function token(): BelongsTo
     {
         return $this->belongsTo(GithubToken::class, 'github_token_id');
+    }
+
+    public function commits(): HasMany
+    {
+        return $this->hasMany(Commit::class);
     }
 
 }

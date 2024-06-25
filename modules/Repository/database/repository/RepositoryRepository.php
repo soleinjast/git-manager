@@ -3,6 +3,7 @@
 namespace Modules\Repository\database\repository;
 
 use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Modules\Repository\src\DTOs\CreateRepositoryDetails;
 use Modules\Repository\src\DTOs\CreateRepositoryDetailsInterface;
 use Modules\Repository\src\DTOs\RepositoryDto;
@@ -10,8 +11,10 @@ use Modules\Repository\src\DTOs\RepositoryItemsData;
 use Modules\Repository\src\DTOs\UpdateRepositoryDetailsInterface;
 use Modules\Repository\src\Enumerations\RepositoryResponseEnums;
 use Modules\Repository\src\Exceptions\RepositoryCreationFailedException;
+use Modules\Repository\src\Exceptions\RepositoryInfoFindFailedException;
 use Modules\Repository\src\Exceptions\RepositoryRetrievalFailedException;
 use Modules\Repository\src\Exceptions\RepositoryUpdateFailedException;
+use Modules\Repository\src\Exceptions\RetrieveRepositoryWithCommitsFailedException;
 use Modules\Repository\src\Models\Repository;
 
 class RepositoryRepository implements RepositoryRepositoryInterface
@@ -62,6 +65,30 @@ class RepositoryRepository implements RepositoryRepositoryInterface
         }catch (\Exception $exception){
             report($exception);
             throw new RepositoryRetrievalFailedException(RepositoryResponseEnums::REPOSITORY_RETRIEVAL_FAILED, 500);
+        }
+    }
+
+    /**
+     * @throws RetrieveRepositoryWithCommitsFailedException
+     */
+    public function getRepositoryWithCommits(int $repositoryId,
+                                             int $perPage,
+                                             ?string $author,
+                                             ?string $startDate,
+                                             ?string $endDate): \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Collection|\Illuminate\Database\Eloquent\Builder|array|null
+    {
+        try {
+            $repository = Repository::query()->findOrFail($repositoryId);
+            $paginatedCommits = $repository->commits()
+                ->filterByAuthor($author)
+                ->filterByStartDate($startDate)
+                ->filterByEndDate($endDate)
+                ->paginate($perPage);
+            $repository->setRelation('commits', $paginatedCommits);
+            return $repository;
+        }catch (RetrieveRepositoryWithCommitsFailedException | ModelNotFoundException $exception){
+            report($exception);
+            throw new RetrieveRepositoryWithCommitsFailedException(RepositoryResponseEnums::REPOSITORY_RETRIEVAL_WITH_COMMIT_FAILED, 500);
         }
     }
 }
