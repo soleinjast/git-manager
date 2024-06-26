@@ -26,16 +26,7 @@ class StoreCommits implements ShouldQueue
             $commits = github_service($event->repository->token, $event->repository->owner, $event->repository->name)
                 ->fetchCommits($event->branch->name);
             foreach ($commits as $commit) {
-                $createCommitDetails = new CreateCommitDetails(
-                    $event->repository->id,
-                    $commit['sha'],
-                    $commit['commit']['message'],
-                    $commit['commit']['author']['name'],
-                    $commit['commit']['author']['date'],
-                    !$commit['parents'],
-                    $commit['author']['id'] ?? null,
-                );
-                ProcessCommit::dispatch($createCommitDetails);
+                ProcessCommit::dispatch($event->repository, $commit);
             }
         } catch (ConnectionException $exception) {
             report($exception);

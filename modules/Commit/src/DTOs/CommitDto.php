@@ -13,7 +13,8 @@ class CommitDto
         public string $sha,
         public string $message,
         public string $author,
-        public string $date
+        public string $date,
+        public bool $is_first_commit
     ) {}
     public static function fromEloquentCollection(Collection $commits): array
     {
@@ -30,6 +31,7 @@ class CommitDto
             $commit->message,
             $commit->author,
             $commit->date->toDateTimeString(),
+            $commit->is_first_commit,
         );
     }
 
@@ -42,6 +44,7 @@ class CommitDto
             'message' => $this->message,
             'author' => $this->author,
             'date' => date('d-m-Y', strtotime($this->date)),
+            'is_first_commit' => $this->is_first_commit
         ];
     }
 }

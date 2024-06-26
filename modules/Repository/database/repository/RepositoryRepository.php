@@ -79,7 +79,7 @@ class RepositoryRepository implements RepositoryRepositoryInterface
     {
         try {
             $repository = Repository::query()->findOrFail($repositoryId);
-            $paginatedCommits = $repository->commits()
+            $paginatedCommits = $repository->commits()->orderBy('date', 'DESC')
                 ->filterByAuthor($author)
                 ->filterByStartDate($startDate)
                 ->filterByEndDate($endDate)

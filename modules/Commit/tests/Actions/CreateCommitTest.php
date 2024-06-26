@@ -3,15 +3,23 @@
 namespace Modules\Commit\tests\Actions;
 
 
+use App\Enumerations\GithubApiResponses;
+use App\Services\GithubService;
+use Exception;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Mockery;
 use Modules\Commit\database\repository\CommitRepository;
 use Modules\Commit\database\repository\CommitRepositoryInterface;
+use Modules\Commit\src\DTOs\CommitDto;
 use Modules\Commit\src\DTOs\CreateCommitDetails;
+use Modules\Commit\src\Events\CommitCreated;
 use Modules\Commit\src\Exceptions\CommitUpdateOrCreateFailedException;
+use Modules\Commit\src\Exceptions\FailedToCheckIfCommitExistsException;
 use Modules\Commit\src\Jobs\ProcessCommit;
 use Modules\Commit\src\Listeners\StoreCommits;
 use Modules\Commit\src\Models\Commit;
@@ -86,14 +94,38 @@ class CreateCommitTest extends TestCase
 
         // Assert that the ProcessCommit jobs were dispatched
         Queue::assertPushed(ProcessCommit::class, function ($job) {
-            return $job->createCommitDetails->sha === '123456';
+            return $job->commitData['sha'] === '123456';
         });
 
         Queue::assertPushed(ProcessCommit::class, function ($job) {
-            return $job->createCommitDetails->sha === '789012';
+            return $job->commitData['sha'] === '789012';
         });
 
         Queue::assertPushed(ProcessCommit::class, 2);
+    }
+
+    public function test_fetch_commits_throws_server_error_exception()
+    {
+        // Arrange
+        $token = 'fake-token';
+        $owner = 'test-owner';
+        $name = 'test-repo';
+        $branch = 'main';
+
+        $githubService = new GithubService();
+        $githubService->setModel($token, $owner, $name);
+
+        // Fake the HTTP response to simulate a server error
+        Http::fake([
+            "https://api.github.com/repos/{$owner}/{$name}/commits" => Http::response([], 500),
+        ]);
+
+        // Assert that the Exception is thrown with the correct message
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage(GithubApiResponses::SERVER_ERROR);
+
+        // Act
+        $githubService->fetchCommits($branch);
     }
     public function test_it_handles_connection_exception()
     {
@@ -127,6 +159,8 @@ class CreateCommitTest extends TestCase
         Queue::assertNothingPushed();
     }
 
+
+
     public function test_it_handles_general_exception()
     {
         Queue::fake();
@@ -159,11 +193,15 @@ class CreateCommitTest extends TestCase
         Queue::assertNothingPushed();
     }
 
-    public function test_handle_method_calls_update_or_create_on_commit_repository()
+    public function test_handle_method_fires_commit_created_event_with_correct_data()
     {
+        $this->withoutExceptionHandling();
+        $githubToken = GithubToken::factory()->create();
+        $repository = Repository::factory()->create();
+
         // Create a CreateCommitDetails DTO with test data
         $createCommitDetails = new CreateCommitDetails(
-            repositoryId: 1,
+            repositoryId: $repository->id,
             sha: '123456',
             message: 'Initial commit',
             author: 'John Doe',
@@ -172,17 +210,64 @@ class CreateCommitTest extends TestCase
             author_git_id: 1
         );
 
+        $commitDto = new CommitDto(
+            id: 1,
+            repositoryId: $repository->id,
+            sha: '123456',
+            message: 'Initial commit',
+            author: 'John Doe',
+            date: '2024-06-22T12:00:00Z',is_first_commit: true,
+        );
+
         // Mock the CommitRepositoryInterface
         $commitRepositoryMock = Mockery::mock(CommitRepositoryInterface::class);
-        $commitRepositoryMock->shouldReceive('updateOrCreate')
+        $commitRepositoryMock->shouldReceive('existsByShaAndRepositoryId')
+            ->andReturn(false);
+        $commitRepositoryMock->shouldReceive('create')
             ->once()
-            ->with($createCommitDetails);
+            ->with(Mockery::on(function (CreateCommitDetails $details) use ($createCommitDetails) {
+                return $details->repositoryId === $createCommitDetails->repositoryId &&
+                    $details->sha === $createCommitDetails->sha &&
+                    $details->message === $createCommitDetails->message &&
+                    $details->author === $createCommitDetails->author &&
+                    $details->date === $createCommitDetails->date &&
+                    $details->is_first_commit === $createCommitDetails->is_first_commit &&
+                    $details->author_git_id === $createCommitDetails->author_git_id;
+            }))
+            ->andReturn($commitDto);
+
+        // Fake the event helper
+        Event::fake();
 
         // Create an instance of the job
-        $job = new ProcessCommit($createCommitDetails);
+        $job = new ProcessCommit(RepositoryDto::fromEloquent($repository), [
+            'sha' => '123456',
+            'commit' => [
+                'message' => 'Initial commit',
+                'author' => [
+                    'name' => 'John Doe',
+                    'date' => '2024-06-22T12:00:00Z',
+                ],
+            ],
+            'author' => [
+                'id' => 1,
+            ],
+            'parents' => [],
+        ]);
 
         // Call the handle method
         $job->handle($commitRepositoryMock);
+
+        // Assert that the CommitCreated event was dispatched with the correct data
+        Event::assertDispatched(CommitCreated::class, function ($event) use ($commitDto, $repository) {
+            return $event->commit->id === $commitDto->id &&
+                $event->commit->sha === $commitDto->sha &&
+                $event->commit->message === $commitDto->message &&
+                $event->commit->author === $commitDto->author &&
+                $event->commit->date === $commitDto->date &&
+                $event->repositoryDto->id === $repository->id &&
+                $event->repositoryDto->name === $repository->name;
+        });
     }
 
     public function test_update_or_create_creates_new_commit()
@@ -204,7 +289,7 @@ class CreateCommitTest extends TestCase
         $repository = new CommitRepository();
 
         // Call the updateOrCreate method
-        $commitDto = $repository->updateOrCreate($createCommitDetails);
+        $commitDto = $repository->create($createCommitDetails);
 
         // Assertions
         $this->assertDatabaseHas('commits', [
@@ -251,7 +336,7 @@ class CreateCommitTest extends TestCase
         $repository = new CommitRepository();
 
         // Call the updateOrCreate method
-        $commitDto = $repository->updateOrCreate($createCommitDetails);
+        $commitDto = $repository->create($createCommitDetails);
 
         // Assertions
         $this->assertDatabaseHas('commits', [
@@ -292,6 +377,142 @@ class CreateCommitTest extends TestCase
         $this->expectException(CommitUpdateOrCreateFailedException::class);
 
         // Call the updateOrCreate method
-        $repository->updateOrCreate($createCommitDetails);
+        $repository->create($createCommitDetails);
+    }
+
+    public function test_handle_method_does_not_dispatch_event_if_commit_exists()
+    {
+        Event::fake();
+        $githubToken = GithubToken::factory()->create();
+        $repository = Repository::factory()->create();
+        $repositoryDto = RepositoryDto::fromEloquent($repository);
+
+        $commitData = [
+            'sha' => '123456',
+            'commit' => [
+                'message' => 'Initial commit',
+                'author' => [
+                    'name' => 'John Doe',
+                    'date' => '2024-06-22T12:00:00Z',
+                ],
+            ],
+            'author' => [
+                'id' => 1,
+            ],
+            'parents' => [],
+        ];
+
+        // Create an existing commit
+        Commit::factory()->create([
+            'repository_id' => $repository->id,
+            'sha' => '123456',
+            'message' => 'Initial commit',
+            'author' => 'John Doe',
+            'date' => '2024-06-22 12:00:00',
+        ]);
+
+        // Mock the CommitRepositoryInterface
+        $commitRepositoryMock = \Mockery::mock(CommitRepositoryInterface::class);
+        $commitRepositoryMock->shouldReceive('existsByShaAndRepositoryId')
+            ->with('123456', $repository->id)
+            ->andReturn(true);
+        $commitRepositoryMock->shouldNotReceive('create');
+
+        // Create an instance of the job
+        $job = new ProcessCommit($repositoryDto, $commitData);
+
+        // Call the handle method
+        $job->handle($commitRepositoryMock);
+
+        // Assert that the CommitCreated event was not dispatched
+        Event::assertNotDispatched(CommitCreated::class);
+    }
+
+    public function test_handle_method_handles_exceptions_in_commit_exists()
+    {
+        Event::fake();
+
+        $githubToken = GithubToken::factory()->create();
+        $repository = Repository::factory()->create();
+        $repositoryDto = RepositoryDto::fromEloquent($repository);
+
+        $commitData = [
+            'sha' => '123456',
+            'commit' => [
+                'message' => 'Initial commit',
+                'author' => [
+                    'name' => 'John Doe',
+                    'date' => '2024-06-22T12:00:00Z',
+                ],
+            ],
+            'author' => [
+                'id' => 1,
+            ],
+            'parents' => [],
+        ];
+
+        // Drop the commits table to simulate the table not existing
+        Schema::drop('commits');
+
+        // Mock the CommitRepositoryInterface
+        $commitRepositoryMock = \Mockery::mock(CommitRepositoryInterface::class);
+        $commitRepositoryMock->shouldReceive('existsByShaAndRepositoryId')
+            ->andThrow(new FailedToCheckIfCommitExistsException('Failed to check if commit exists'));
+
+        // Ensure the create method is not called
+        $commitRepositoryMock->shouldNotReceive('create');
+
+        // Create an instance of the job
+        $job = new ProcessCommit($repositoryDto, $commitData);
+
+        // Call the handle method
+        $job->handle($commitRepositoryMock);
+
+        // Assert that the CommitCreated event was not dispatched
+        Event::assertNotDispatched(CommitCreated::class);
+    }
+
+    public function test_exists_by_sha_and_repository_id_returns_true_if_commit_exists()
+    {
+        $githubToken = GithubToken::factory()->create();
+        $repository = Repository::factory()->create();
+        // Create a commit with a specific sha and repository_id
+        Commit::factory()->create([
+            'sha' => '123456',
+            'repository_id' => 1,
+        ]);
+
+        // Instantiate the CommitRepository
+        $commitRepository = new CommitRepository();
+
+        // Call the method and assert it returns true
+        $exists = $commitRepository->existsByShaAndRepositoryId('123456', 1);
+
+        $this->assertTrue($exists);
+    }
+
+    public function test_exists_by_sha_and_repository_id_returns_false_if_commit_does_not_exist()
+    {
+        // Instantiate the CommitRepository
+        $commitRepository = new CommitRepository();
+
+        // Call the method and assert it returns false
+        $exists = $commitRepository->existsByShaAndRepositoryId('123456', 1);
+
+        $this->assertFalse($exists);
+    }
+
+    public function test_exists_by_sha_and_repository_id_throws_exception_on_error()
+    {
+        // Drop the commits table to simulate an exception
+        Commit::query()->getConnection()->getSchemaBuilder()->drop('commits');
+
+        // Instantiate the CommitRepository
+        $commitRepository = new CommitRepository();
+
+        // Assert that the method throws a FailedToCheckIfCommitExistsException
+        $this->expectException(FailedToCheckIfCommitExistsException::class);
+
+        $commitRepository->existsByShaAndRepositoryId('123456', 1);
     }
 }

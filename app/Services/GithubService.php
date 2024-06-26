@@ -8,7 +8,7 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use Modules\Token\src\Enumerations\GithubTokenApiResponses;
 
-class GithubService
+class GithubService extends GitService
 {
     private string $token;
     private string $owner;
@@ -121,6 +121,23 @@ class GithubService
                 return $response->json();
             }
 
+            return [];
+        } catch (ConnectionException $e) {
+            report($e);
+            return [];
+        }
+    }
+
+    public function fetchCommitFiles(string $sha): array
+    {
+        try {
+            $response = Http::withToken($this->token)
+                ->get("https://api.github.com/repos/{$this->owner}/{$this->name}/commits/{$sha}");
+
+            if ($response->successful()) {
+                $commitData = $response->json();
+                return $commitData['files'] ?? [];
+            }
             return [];
         } catch (ConnectionException $e) {
             report($e);

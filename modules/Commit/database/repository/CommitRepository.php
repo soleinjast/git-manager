@@ -6,6 +6,7 @@ use Exception;
 use Modules\Commit\src\DTOs\CommitDto;
 use Modules\Commit\src\DTOs\CreateCommitDetails;
 use Modules\Commit\src\Exceptions\CommitUpdateOrCreateFailedException;
+use Modules\Commit\src\Exceptions\FailedToCheckIfCommitExistsException;
 use Modules\Commit\src\Models\Commit;
 
 class CommitRepository implements CommitRepositoryInterface
@@ -15,13 +16,28 @@ class CommitRepository implements CommitRepositoryInterface
      * @return CommitDto
      * @throws CommitUpdateOrCreateFailedException
      */
-    public function updateOrCreate(CreateCommitDetails $createCommitDetails): CommitDto
+    public function create(CreateCommitDetails $createCommitDetails): CommitDto
     {
         try {
-            $commit = Commit::query()->updateOrCreate($createCommitDetails->toArray());
+            $commit = Commit::query()->create($createCommitDetails->toArray());
             return CommitDto::fromEloquent($commit);
         } catch (Exception $e) {
             throw new CommitUpdateOrCreateFailedException($e->getMessage());
+        }
+    }
+
+    /**
+     * @throws FailedToCheckIfCommitExistsException
+     */
+    public function existsByShaAndRepositoryId(string $sha, int $repositoryId): bool
+    {
+        try {
+            return Commit::query()
+                ->where('sha', $sha)
+                ->where('repository_id', $repositoryId)
+                ->exists();
+        }catch (Exception $exception){
+            throw new FailedToCheckIfCommitExistsException($exception->getMessage());
         }
     }
 }

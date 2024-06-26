@@ -16,12 +16,23 @@ use Modules\Repository\src\Models\Repository;
  * @property mixed $message
  * @property mixed $author
  * @property mixed $date
+ * @property mixed $author_git_id
+ * @property mixed $is_first_commit
  */
 class Commit extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['repository_id', 'sha', 'message', 'author', 'date', 'author_git_id', 'is_first_commit', 'author_git_id'];
+    protected $fillable = [
+        'repository_id',
+        'sha',
+        'message',
+        'author',
+        'date',
+        'author_git_id',
+        'is_first_commit',
+        'author_git_id'
+    ];
 
     protected $casts = [
         'date' => 'datetime:Y-m-d H:i:s',
