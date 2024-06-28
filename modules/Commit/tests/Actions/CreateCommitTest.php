@@ -209,16 +209,16 @@ class CreateCommitTest extends TestCase
             is_first_commit: true,
             author_git_id: 1
         );
-
-        $commitDto = new CommitDto(
-            id: 1,
-            repositoryId: $repository->id,
-            sha: '123456',
-            message: 'Initial commit',
-            author: 'John Doe',
-            date: '2024-06-22T12:00:00Z',is_first_commit: true,
-        );
-
+        $commit = Commit::factory()->create([
+            'repository_id' => $repository->id,
+            'sha' => '123456',
+            'message' => 'Initial commit',
+            'author' => 'John Doe',
+            'date' => '2024-06-22T12:00:00Z',
+            'is_first_commit' => true,
+            'author_git_id' => 1,
+        ]);
+        $commitDto = CommitDto::fromEloquent($commit);
         // Mock the CommitRepositoryInterface
         $commitRepositoryMock = Mockery::mock(CommitRepositoryInterface::class);
         $commitRepositoryMock->shouldReceive('existsByShaAndRepositoryId')

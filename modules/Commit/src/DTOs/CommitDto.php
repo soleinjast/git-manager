@@ -14,7 +14,8 @@ class CommitDto
         public string $message,
         public string $author,
         public string $date,
-        public bool $is_first_commit
+        public bool $is_first_commit,
+        public bool $has_non_meaningful_files,
     ) {}
     public static function fromEloquentCollection(Collection $commits): array
     {
@@ -32,6 +33,7 @@ class CommitDto
             $commit->author,
             $commit->date->toDateTimeString(),
             $commit->is_first_commit,
+            $commit->has_non_meaningful_files,
         );
     }
 
@@ -44,7 +46,8 @@ class CommitDto
             'message' => $this->message,
             'author' => $this->author,
             'date' => date('d-m-Y', strtotime($this->date)),
-            'is_first_commit' => $this->is_first_commit
+            'is_first_commit' => $this->is_first_commit,
+            'has_non_meaningFul_files' => $this->has_non_meaningful_files,
         ];
     }
 }

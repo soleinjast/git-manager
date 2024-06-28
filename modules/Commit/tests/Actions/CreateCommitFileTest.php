@@ -112,15 +112,11 @@ class CreateCommitFileTest extends TestCase
         $githubToken = GithubToken::factory()->create();
         // Create a repository and commit
         $repository = Repository::factory()->create();
-        $commitDto = new CommitDto(
-            id: 1,
-            repositoryId: $repository->id,
-            sha: '123456',
-            message: 'Initial commit',
-            author: 'John Doe',
-            date: '2024-06-22T12:00:00Z',is_first_commit: false
-        );
-
+        $commit = Commit::factory()->create([
+            'repository_id' => $repository->id,
+            'sha' => '123456'
+        ]);
+        $commitDto = CommitDto::fromEloquent($commit);
         // Fake the GitHub API response
         Http::fake([
             'https://api.github.com/repos/' . $repository->owner . '/' . $repository->name . '/commits/123456' => Http::response([

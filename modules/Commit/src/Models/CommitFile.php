@@ -4,6 +4,7 @@ namespace Modules\Commit\src\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Modules\Commit\database\factories\CommitFileFactory;
 
 class CommitFile extends Model
 {
@@ -15,4 +16,9 @@ class CommitFile extends Model
         'changes',
         'meaningful'
     ];
+
+    protected static function newFactory(): CommitFileFactory
+    {
+        return new CommitFileFactory();
+    }
 }

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Modules\Commit\database\factories\CommitFactory;
 use Modules\Repository\src\Models\Repository;
 
@@ -18,6 +19,9 @@ use Modules\Repository\src\Models\Repository;
  * @property mixed $date
  * @property mixed $author_git_id
  * @property mixed $is_first_commit
+ * @property mixed $created_at
+ * @property mixed $updated_at
+ * @property mixed $has_non_meaningful_files
  */
 class Commit extends Model
 {
@@ -40,9 +44,15 @@ class Commit extends Model
         'updated_at' => 'datetime:Y-m-d H:i:s',
     ];
 
+    protected $appends = ['has_non_meaningful_files'];
+
     protected static function newFactory(): CommitFactory
     {
         return new CommitFactory();
+    }
+    public function commitFiles(): HasMany
+    {
+        return $this->hasMany(CommitFile::class);
     }
 
     public function repository(): BelongsTo
@@ -63,5 +73,10 @@ class Commit extends Model
     public function scopeFilterByEndDate(Builder $query, ?string $endDate): Builder
     {
         return $endDate ? $query->whereDate('date', '<=', $endDate) : $query;
+    }
+
+    public function getHasNonMeaningfulFilesAttribute(): bool
+    {
+        return $this->commitFiles()->where('meaningful', false)->exists();
     }
 }

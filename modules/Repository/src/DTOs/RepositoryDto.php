@@ -2,6 +2,7 @@
 
 namespace Modules\Repository\src\DTOs;
 
+use Illuminate\Database\Eloquent\Collection;
 use Modules\Repository\src\Models\Repository;
 
 class RepositoryDto
@@ -13,7 +14,15 @@ class RepositoryDto
                                 public string $updated_at,
                                 public int $github_token_id,
                                 public string $deadline,
-                                public string $token)
+                                public string $token,
+                                public Collection $collabs,
+                                public int $commitsCount,
+                                public int $commitsFilesCount,
+                                public int $meaningfulCommitFilesCount,
+                                public int $NotMeaningfulCommitFilesCount,
+                                public ?string $firstCommit,
+                                public ?string $lastCommit,
+    )
     {
 
     }
@@ -27,7 +36,14 @@ class RepositoryDto
             $repository->updated_at,
             $repository->github_token_id,
             $repository->deadline,
-            $repository->token->token
+            $repository->token->token,
+            $repository->collaborators,
+            $repository->commits->count(),
+            $repository->total_commit_files_count,
+            $repository->meaningful_commit_files_count,
+            $repository->not_meaningful_commit_files_count,
+            $repository->first_commit,
+            $repository->last_commit
         );
     }
 
@@ -41,7 +57,14 @@ class RepositoryDto
             'updated_at' => $this->updated_at,
             'github_token_id' => $this->github_token_id,
             'deadline' => $this->deadline,
-            'token' => $this->token
+            'token' => $this->token,
+            'collabs' => $this->collabs->toArray(),
+            'commitsCount' => $this->commitsCount,
+            'commitsFilesCount' => $this->commitsFilesCount,
+            'meaningfulCommitFilesCount' => $this->meaningfulCommitFilesCount,
+            'NotMeaningfulCommitFilesCount' => $this->NotMeaningfulCommitFilesCount,
+            'firstCommit' => $this->firstCommit,
+            'lastCommit' => $this->lastCommit,
         ];
     }
 }
