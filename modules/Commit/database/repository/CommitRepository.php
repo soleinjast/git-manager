@@ -5,6 +5,7 @@ namespace Modules\Commit\database\repository;
 use Exception;
 use Modules\Commit\src\DTOs\CommitDto;
 use Modules\Commit\src\DTOs\CreateCommitDetails;
+use Modules\Commit\src\Exceptions\FailedToFetchCommitWithCommitFiles;
 use Modules\Commit\src\Exceptions\CommitUpdateOrCreateFailedException;
 use Modules\Commit\src\Exceptions\FailedToCheckIfCommitExistsException;
 use Modules\Commit\src\Models\Commit;
@@ -39,5 +40,22 @@ class CommitRepository implements CommitRepositoryInterface
         }catch (Exception $exception){
             throw new FailedToCheckIfCommitExistsException($exception->getMessage());
         }
+    }
+
+    /**
+     * @throws FailedToFetchCommitWithCommitFiles
+     */
+    public function getCommitFilesBySha(int $repositoryId, string $sha): \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Builder|null
+    {
+        try {
+            $commit = Commit::query()->where('repository_id', $repositoryId)
+                ->where('sha', $sha)
+                ->with('commitFiles')
+                ->first();
+        }catch (\Exception $exception){
+            report($exception);
+            throw new FailedToFetchCommitWithCommitFiles();
+        }
+        return $commit;
     }
 }
