@@ -7,6 +7,7 @@ use Modules\Repository\database\repository\BranchRepository;
 use Modules\Repository\database\repository\BranchRepositoryInterface;
 use Modules\Repository\database\repository\RepositoryRepository;
 use Modules\Repository\database\repository\RepositoryRepositoryInterface;
+use Modules\Repository\src\Console\UpdateRepositoryChanges;
 use Modules\Repository\src\DTOs\CreateRepositoryDetails;
 use Modules\Repository\src\DTOs\CreateRepositoryDetailsInterface;
 
@@ -23,5 +24,8 @@ class RepositoryServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+        $this->commands([
+            UpdateRepositoryChanges::class,
+        ]);
     }
 }

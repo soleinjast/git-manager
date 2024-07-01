@@ -2,26 +2,19 @@
 
 namespace Modules\Commit\src\Listeners;
 
+use Exception;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Queue\InteractsWithQueue;
-use Modules\Commit\database\repository\CommitRepositoryInterface;
-use Modules\Commit\src\DTOs\CreateCommitDetails;
 use Modules\Commit\src\Jobs\ProcessCommit;
-use Modules\Repository\src\DTOs\BranchDto;
-use Modules\Repository\src\Events\BranchCreated;
 use Modules\Repository\src\Events\BranchUpdated;
 use function App\helpers\github_service;
 
-class StoreCommits implements ShouldQueue
+class UpdateCommits implements ShouldQueue
 {
     use InteractsWithQueue;
 
-    public function __construct()
-    {
-    }
-
-    public function handle(BranchCreated $event) : void
+    public function handle(BranchUpdated $event) : void
     {
         try {
             $commits = github_service($event->repository->token, $event->repository->owner, $event->repository->name)
@@ -31,7 +24,7 @@ class StoreCommits implements ShouldQueue
             }
         } catch (ConnectionException $exception) {
             report($exception);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             report($e);
         }
     }

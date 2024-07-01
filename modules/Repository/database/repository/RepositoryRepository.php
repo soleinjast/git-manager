@@ -2,8 +2,10 @@
 
 namespace Modules\Repository\database\repository;
 
+use Closure;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Modules\Commit\src\Exceptions\ChunkAllRepositoriesFailedException;
 use Modules\Repository\src\DTOs\CreateRepositoryDetails;
 use Modules\Repository\src\DTOs\CreateRepositoryDetailsInterface;
 use Modules\Repository\src\DTOs\RepositoryDto;
@@ -11,7 +13,6 @@ use Modules\Repository\src\DTOs\RepositoryItemsData;
 use Modules\Repository\src\DTOs\UpdateRepositoryDetailsInterface;
 use Modules\Repository\src\Enumerations\RepositoryResponseEnums;
 use Modules\Repository\src\Exceptions\RepositoryCreationFailedException;
-use Modules\Repository\src\Exceptions\RepositoryInfoFindFailedException;
 use Modules\Repository\src\Exceptions\RepositoryRetrievalFailedException;
 use Modules\Repository\src\Exceptions\RepositoryUpdateFailedException;
 use Modules\Repository\src\Exceptions\RetrieveRepositoryWithCommitsFailedException;
@@ -86,9 +87,22 @@ class RepositoryRepository implements RepositoryRepositoryInterface
                 ->paginate($perPage);
             $repository->setRelation('commits', $paginatedCommits);
             return $repository;
-        }catch (RetrieveRepositoryWithCommitsFailedException | ModelNotFoundException $exception){
+        }catch (Exception | ModelNotFoundException $exception){
             report($exception);
             throw new RetrieveRepositoryWithCommitsFailedException(RepositoryResponseEnums::REPOSITORY_RETRIEVAL_WITH_COMMIT_FAILED, 500);
+        }
+    }
+
+    /**
+     * @throws ChunkAllRepositoriesFailedException
+     */
+    public function chunkAll(int $chunkSize, Closure $callback): void
+    {
+        try {
+            Repository::query()->chunk($chunkSize, $callback);
+        }catch (Exception $exception){
+            report($exception);
+            throw new ChunkAllRepositoriesFailedException();
         }
     }
 }

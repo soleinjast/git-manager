@@ -21,4 +21,17 @@ class BranchRepository implements BranchRepositoryInterface
             throw new Exception($e->getMessage());
         }
     }
+
+    /**
+     * @throws Exception
+     */
+    public function updateOrCreate(CreateBranchDetails $createBranchDetails): BranchDto
+    {
+        try {
+            $branch = Branch::query()->updateOrCreate($createBranchDetails->toArray());
+            return BranchDto::fromEloquent($branch);
+        }catch (Exception $e){
+            throw new Exception($e->getMessage());
+        }
+    }
 }

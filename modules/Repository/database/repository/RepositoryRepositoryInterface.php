@@ -2,6 +2,8 @@
 
 namespace Modules\Repository\database\repository;
 
+use Closure;
+use Modules\Commit\src\Exceptions\ChunkAllRepositoriesFailedException;
 use Modules\Repository\src\DTOs\CreateRepositoryDetails;
 use Modules\Repository\src\DTOs\UpdateRepositoryDetails;
 use Modules\Repository\src\Exceptions\RepositoryCreationFailedException;
@@ -20,16 +22,18 @@ interface RepositoryRepositoryInterface
      * @throws RepositoryUpdateFailedException
      */
     public function update(UpdateRepositoryDetails $updateRepositoryDetails);
-
     /**
      * @throws RepositoryRetrievalFailedException
      */
     public function fetchAll(?string $searchName = null, ?string $searchOwner = null): array;
-
-
     /**
      * @throws RetrieveRepositoryWithCommitsFailedException
      */
-
     public function getRepositoryWithCommits(int $repositoryId, int $perPage, ?string $author, ?string $startDate, ?string $endDate);
+
+    /**
+     * @throws ChunkAllRepositoriesFailedException
+     */
+    public function chunkAll(int $chunkSize, Closure $callback): void;
+
 }
