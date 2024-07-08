@@ -22,6 +22,8 @@ class UserRepository implements UserRepositoryInterface
                 'login_name' => $userCreateDetails->login_name,
                 'name' => $userCreateDetails->name,
                 'avatar_url' => $userCreateDetails->avatar_url,
+                'university_username' => $userCreateDetails->university_username,
+                'status' => $userCreateDetails->status,
             ]);
         }catch (Exception $exception){
             report($exception);

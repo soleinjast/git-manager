@@ -38,8 +38,6 @@ use Tests\TestCase;
 class RepositoryControllerTest extends TestCase
 {
     use RefreshDatabase;
-
-    // Test creating a repository successfully
     public function testCanCreateRepositorySuccessfully()
     {
         Http::fake([

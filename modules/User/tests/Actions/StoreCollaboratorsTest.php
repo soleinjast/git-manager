@@ -91,7 +91,9 @@ class StoreCollaboratorsTest extends TestCase
             'login' => 'collaborator1',
             'name' => 'Collaborator One',
             'id' => 1,
-            'avatar_url' => 'http://example.com/avatar1.png',
+            'avatar_url' => 'https://example.com/avatar1.png',
+            'university_username' => 'testuser',
+            'status' => 'approved'
         ];
 
         $job = new CreateUser($repositoryDto, $userData);
@@ -120,7 +122,9 @@ class StoreCollaboratorsTest extends TestCase
             login_name: 'testuser',
             name: 'Test User',
             git_id: 123456,
-            avatar_url: 'http://example.com/avatar.png'
+            avatar_url: 'https://example.com/avatar.png',
+            university_username: 'testuser',
+            status: 'approved'
         );
 
         $userRepository = new UserRepository();
@@ -131,7 +135,7 @@ class StoreCollaboratorsTest extends TestCase
             'login_name' => 'testuser',
             'name' => 'Test User',
             'git_id' => 123456,
-            'avatar_url' => 'http://example.com/avatar.png'
+            'avatar_url' => 'https://example.com/avatar.png'
         ]);
     }
 
@@ -151,7 +155,9 @@ class StoreCollaboratorsTest extends TestCase
             'login_name' => 'testuser',
             'name' => 'Old Name',
             'git_id' => 123456,
-            'avatar_url' => 'http://example.com/old_avatar.png'
+            'avatar_url' => 'http://example.com/old_avatar.png',
+            'university_username' => 'testuser',
+            'status' => 'approved'
         ]);
 
         $userCreateDetails = new UserCreateDetails(
@@ -159,7 +165,9 @@ class StoreCollaboratorsTest extends TestCase
             login_name: 'testuser2',
             name: 'New Name',
             git_id: 123456,
-            avatar_url: 'http://example.com/new_avatar.png'
+            avatar_url: 'http://example.com/new_avatar.png',
+            university_username: 'testuser',
+            status: 'approved'
         );
 
         $userRepository = new UserRepository();
@@ -199,7 +207,9 @@ class StoreCollaboratorsTest extends TestCase
             login_name: 'testuser',
             name: 'Test User',
             git_id: 123456,
-            avatar_url: 'http://example.com/avatar.png'
+            avatar_url: 'http://example.com/avatar.png',
+            university_username: 'testuser',
+            status: 'approved'
         );
 
         \Illuminate\Support\Facades\Schema::drop('users');

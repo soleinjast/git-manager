@@ -15,7 +15,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('repository_id')->constrained()->onDelete('cascade');
             $table->string('login_name')->nullable();
+            $table->string('university_username')->nullable();
             $table->string('name')->nullable();
+            $table->enum('status', ['approved', 'pending'])->default('approved');
             $table->string('avatar_url')->nullable();
             $table->string('git_id')->nullable();
             $table->timestamps();

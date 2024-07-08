@@ -18,6 +18,8 @@ class UserFactory extends Factory
             'name' => $this->faker->name,
             'git_id' => $this->faker->randomNumber(),
             'avatar_url' => $this->faker->imageUrl(),
+            'university_username' => $this->faker->userName,
+            'status' => $this->faker->randomElement(['approved', 'pending']),
         ];
     }
 }

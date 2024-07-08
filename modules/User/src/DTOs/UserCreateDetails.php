@@ -8,7 +8,9 @@ class UserCreateDetails
                                 public string $login_name,
                                 public string $name,
                                 public string $git_id,
-                                public string $avatar_url
+                                public string $avatar_url,
+                                public string $university_username,
+                                public string $status,
     )
     {
 

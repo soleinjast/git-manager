@@ -27,7 +27,9 @@ class CreateUser implements ShouldQueue
             login_name: $this->userData['login'],
             name: $this->userData['name'] ?? '',
             git_id: $this->userData['id'],
-            avatar_url: $this->userData['avatar_url']
+            avatar_url: $this->userData['avatar_url'],
+            university_username: $this->userData['university_username'] ?? '',
+            status: $this->userData['status'] ?? 'approved'
         );
         $userRepository->updateOrCreate($newUserDetails);
     }

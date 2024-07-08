@@ -145,4 +145,35 @@ class GithubService extends GitService
         }
     }
 
+    /**
+     * @throws ConnectionException
+     */
+    public function createRepository(): array
+    {
+        try {
+            $response = Http::withToken($this->token)->post("https://api.github.com/orgs/{$this->owner}/repos", [
+                'name' => $this->name,
+                'auto_init' => false,
+                'private' => true,
+            ]);
+            return $response->json();
+        } catch (ConnectionException $e) {
+            throw new ConnectionException(GithubApiResponses::CONNECTION_ERROR);
+        }
+    }
+
+    /**
+     * @throws ConnectionException
+     */
+    public function addCollaborator(array $member, $role = 'admin'): void
+    {
+        try {
+            $response = Http::withToken($this->token)->put("https://api.github.com/repos/{$this->owner}/{$this->name}/collaborators/{$member['github_username']}", [
+                'permission' => $role
+            ]);
+        } catch (ConnectionException $e) {
+            throw new ConnectionException(GithubApiResponses::CONNECTION_ERROR);
+        }
+    }
+
 }

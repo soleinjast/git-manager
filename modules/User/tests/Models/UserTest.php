@@ -41,7 +41,7 @@ class UserTest extends TestCase
     public function test_fillable()
     {
         $user = new User();
-        $this->assertEquals(['repository_id', 'login_name', 'name', 'git_id', 'avatar_url'], $user->getFillable());
+        $this->assertEquals(['repository_id', 'login_name', 'university_username','name', 'status', 'git_id', 'avatar_url'], $user->getFillable());
     }
 
     public function test_github_url_attribute()

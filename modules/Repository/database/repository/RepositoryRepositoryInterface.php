@@ -5,6 +5,7 @@ namespace Modules\Repository\database\repository;
 use Closure;
 use Modules\Commit\src\Exceptions\ChunkAllRepositoriesFailedException;
 use Modules\Repository\src\DTOs\CreateRepositoryDetails;
+use Modules\Repository\src\DTOs\RepositoryDto;
 use Modules\Repository\src\DTOs\UpdateRepositoryDetails;
 use Modules\Repository\src\Exceptions\RepositoryCreationFailedException;
 use Modules\Repository\src\Exceptions\RepositoryRetrievalFailedException;

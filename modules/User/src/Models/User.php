@@ -22,7 +22,9 @@ class User extends Model
     protected $fillable = [
         'repository_id',
         'login_name',
+        'university_username',
         'name',
+        'status',
         'git_id',
         'avatar_url'
     ];
