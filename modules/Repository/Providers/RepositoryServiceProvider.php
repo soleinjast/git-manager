@@ -27,5 +27,6 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->commands([
             UpdateRepositoryChanges::class,
         ]);
+        $this->loadViewsFrom(__DIR__.'/../Ui/resources/views', 'RepositoryApp');
     }
 }

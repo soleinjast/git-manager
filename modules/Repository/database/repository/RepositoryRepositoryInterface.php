@@ -26,7 +26,7 @@ interface RepositoryRepositoryInterface
     /**
      * @throws RepositoryRetrievalFailedException
      */
-    public function fetchAll(?string $searchName = null, ?string $searchOwner = null): array;
+    public function fetchAll(?string $searchName = null, ?string $searchOwner = null, ?string $filterDeadline = null): array;
     /**
      * @throws RetrieveRepositoryWithCommitsFailedException
      */

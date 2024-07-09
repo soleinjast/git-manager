@@ -55,11 +55,12 @@ class RepositoryRepository implements RepositoryRepositoryInterface
     /**
      * @throws RepositoryRetrievalFailedException
      */
-    public function fetchAll(?string $searchName = null, ?string $searchOwner = null): array
+    public function fetchAll(?string $searchName = null, ?string $searchOwner = null, ?string $filterDeadline = null): array
     {
         try {
             $repositories = Repository::searchByName($searchName)
                 ->searchByOwner($searchOwner)
+                ->filterByDeadline($filterDeadline)
                 ->orderBy('created_at', 'DESC')
                 ->get();
             return RepositoryItemsData::fromRepositoryEloquentCollection($repositories);

@@ -10,6 +10,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Schema;
@@ -443,6 +444,25 @@ class RepositoryControllerTest extends TestCase
         $response = $this->get(route('repository.fetch', ['search_owner' => 'owner1']));
         $this->assertCount(1, $response->json()['data']);
         $response->assertStatus(200);
+    }
+
+    public function test_it_can_filter_repositories_by_deadline()
+    {
+        $githubToken = GithubToken::factory()->create();
+        // Given: Create repositories with different deadlines
+        $deadlineToday = Carbon::today();
+        $deadlineTomorrow = Carbon::tomorrow();
+
+        Repository::factory()->create(['deadline' => $deadlineToday]);
+        Repository::factory()->create(['deadline' => $deadlineTomorrow]);
+        Repository::factory()->create(['deadline' => $deadlineTomorrow->addDay()]);
+
+        // When: Filtering repositories by today's deadline
+        $repositories = Repository::filterByDeadline($deadlineToday->toDateString())->get();
+
+        // Then: Only the repository with today's deadline should be returned
+        $this->assertCount(1, $repositories);
+        $this->assertTrue($repositories->first()->deadline->isSameDay($deadlineToday));
     }
 
     public function testCanRetrieveRepositoriesWithSearchByNameAndOwner()

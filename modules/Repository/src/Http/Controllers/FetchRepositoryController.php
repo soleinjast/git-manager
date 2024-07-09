@@ -20,7 +20,8 @@ class FetchRepositoryController
         try {
             $searchName = request()->query('search_name');
             $searchOwner = request()->query('search_owner');
-            $repositories = $this->repositoryRepository->fetchAll($searchName, $searchOwner);
+            $filter_deadline = request()->query('filter_deadline');
+            $repositories = $this->repositoryRepository->fetchAll($searchName, $searchOwner, $filter_deadline);
             return $this->successResponse($repositories);
         }catch (RepositoryRetrievalFailedException $exception){
             report($exception);

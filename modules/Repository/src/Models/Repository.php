@@ -33,6 +33,7 @@ use Modules\User\src\Models\User;
  * @property mixed $token
  * @method static searchByName(string|null $search)
  * @method static searchByOwner(string|null $search)
+ * @method static filterByDeadline(string|null $deadline)
  */
 class Repository extends Model
 {
@@ -73,6 +74,14 @@ class Repository extends Model
     {
         if ($searchOwner) {
             return $query->where('owner', 'like', '%' . $searchOwner . '%');
+        }
+        return $query;
+    }
+
+    public function scopeFilterByDeadline(Builder $query, ?string $deadline): Builder
+    {
+        if ($deadline) {
+            return $query->whereDate('deadline', $deadline);
         }
         return $query;
     }

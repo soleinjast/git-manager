@@ -22,6 +22,7 @@ class RepositoryDto
                                 public int $NotMeaningfulCommitFilesCount,
                                 public ?string $firstCommit,
                                 public ?string $lastCommit,
+                                public string $repositoryUrl,
     )
     {
 
@@ -43,7 +44,8 @@ class RepositoryDto
             $repository->meaningful_commit_files_count,
             $repository->not_meaningful_commit_files_count,
             $repository->first_commit,
-            $repository->last_commit
+            $repository->last_commit,
+            $repository->github_url
         );
     }
 
@@ -65,6 +67,7 @@ class RepositoryDto
             'NotMeaningfulCommitFilesCount' => $this->NotMeaningfulCommitFilesCount,
             'firstCommit' => $this->firstCommit,
             'lastCommit' => $this->lastCommit,
+            'githubUrl' => $this->repositoryUrl
         ];
     }
 }

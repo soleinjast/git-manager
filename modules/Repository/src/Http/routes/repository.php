@@ -21,7 +21,8 @@ Route::post('create', CreateRepositoryController::class)
         CheckUniqueRepository::class,
         CheckAccessibility::class
     ])->name('create');
-
+Route::view('/', 'RepositoryApp::index')
+    ->name('repository-list-view');
 
 Route::post('/{id}/update', UpdateRepositoryController::class)
     ->middleware([

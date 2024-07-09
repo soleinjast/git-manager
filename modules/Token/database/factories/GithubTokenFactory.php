@@ -22,7 +22,7 @@ class GithubTokenFactory extends Factory
     {
         return $this->state(function (array $attributes) {
             return [
-                'token' => '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',
+                'token' => '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',
                 'login_name' => 'soleinjast',
                 'githubId' => '117115652'
             ];

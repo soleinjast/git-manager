@@ -22,8 +22,10 @@
         </include>
         <exclude>
             <directory suffix=".php">./modules/*/src/Http/routes</directory>
+            <directory suffix=".php">./app/helpers</directory>
             <directory suffix=".php">./modules/*/tests</directory>
             <directory suffix=".php">./modules/*/Providers</directory>
+            <directory suffix=".php">./modules/*/Ui</directory>
             <directory suffix=".php">./modules/*/database/migrations</directory>
 
             <!-- Filter down additional unwanted subdirectories here -->
