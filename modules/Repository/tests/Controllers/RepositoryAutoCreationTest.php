@@ -722,7 +722,7 @@ class RepositoryAutoCreationTest extends TestCase
             NotMeaningfulCommitFilesCount: 0,
             firstCommit: null,
             lastCommit: null,
-            repositoryUrl: 'https://github.com/qasm-group-project/job-searching-api'
+            repositoryUrl: 'https://github.com/qasm-group-project/job-searching-api',isCloseToDeadline: false
         ));
 
         $userRepositoryMock = Mockery::mock(UserRepositoryInterface::class);

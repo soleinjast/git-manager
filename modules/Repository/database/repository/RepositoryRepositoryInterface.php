@@ -8,6 +8,7 @@ use Modules\Repository\src\DTOs\CreateRepositoryDetails;
 use Modules\Repository\src\DTOs\RepositoryDto;
 use Modules\Repository\src\DTOs\UpdateRepositoryDetails;
 use Modules\Repository\src\Exceptions\RepositoryCreationFailedException;
+use Modules\Repository\src\Exceptions\RepositoryInfoFindFailedException;
 use Modules\Repository\src\Exceptions\RepositoryRetrievalFailedException;
 use Modules\Repository\src\Exceptions\RepositoryUpdateFailedException;
 use Modules\Repository\src\Exceptions\RetrieveRepositoryWithCommitsFailedException;
@@ -36,5 +37,10 @@ interface RepositoryRepositoryInterface
      * @throws ChunkAllRepositoriesFailedException
      */
     public function chunkAll(int $chunkSize, Closure $callback): void;
+
+    /**
+     * @throws RepositoryInfoFindFailedException
+     */
+    public function findById(int $repoId): RepositoryDto;
 
 }

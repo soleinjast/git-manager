@@ -11,4 +11,5 @@ class RepositoryResponseEnums
     const REPOSITORY_RETRIEVAL_WITH_COMMIT_FAILED = "Failed to retrieve repository with commits.";
 
     const ACCESS_FAILED_FOR_CREATING_REPOSITORY_UNDER_ORGANIZATION = 'You do not have permission to create repositories in this organization.';
+    const REPOSITORY_INFO_FIND_FAILED = 'Failed to find repository info.';
 }

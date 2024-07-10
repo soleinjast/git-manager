@@ -21,6 +21,24 @@
         .toast-body i {
             color: #155724; /* Dark green icon */
         }
+        .close-deadline {
+            color: #d9534f; /* Bootstrap's danger color */
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+        .close-deadline svg {
+            margin-right: 5px;
+        }
+        .blinking {
+            animation: blink 1s step-start infinite;
+        }
+
+        @keyframes blink {
+            50% {
+                opacity: 0;
+            }
+        }
     </style>
     <div id="repository">
         <div class="col-lg-4 col-md-6 mb-3">
@@ -156,10 +174,20 @@
                             @{{ repositories[index].currentCommitsFilesCount }}
                         </td>
                         <td><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="green" class="bi bi-check-circle-fill" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/></svg></td>
-                        <td>@{{repositories[index].deadline}}</td>
+                        <td>
+                            @{{repositories[index].deadline}}
+                            <div>
+        <span v-if="repositories[index].isCloseToDeadline" class="close-deadline" v-bind:class="{ 'blinking': repositories[index].isCloseToDeadline }">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-exclamation-circle-fill" viewBox="0 0 16 16">
+                <path d="M16 8A8 8 8 1 1 0 0 8a8 8 0 0 1 16 0zM8.93 6.588 8 4.292 7.07 6.588H5.917l.974 1.766-.572 2.588L8 10.071l1.681.871-.572-2.588.974-1.766H8.93zm-.93 4.588a1 1 0 1 0 2 0 1 1 0 0 0-2 0z"/>
+            </svg>
+            Close To Deadline
+        </span>
+                            </div>
+                        </td>
                         <td>
                             <button type="button" class="btn btn-danger">Remove</button>
-                            {{--                            <button type="button" class="btn btn-info" v-on:click="viewRepoDetails(repo.id)">Info</button>--}}
+                            <button type="button" class="btn btn-info" v-on:click="viewRepoDetails(repo.id)">Info</button>
                         </td>
                     </tr>
                     </tbody>
@@ -364,9 +392,9 @@
 
                             });
                     },
-                    {{--viewRepoDetails(repoId){--}}
-                        {{--    window.location.href = '{{ route("repository.repository-detail-view", ":repoId") }}'.replace(':repoId', repoId);--}}
-                        {{--},--}}
+                    viewRepoDetails(repoId){
+                            window.location.href = '{{ route("repository.repository-detail-view", ":repoId") }}'.replace(':repoId', repoId);
+                        },
                     deleteRepo(id) {
                         // Delete repository logic
                     },

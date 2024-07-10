@@ -13,6 +13,7 @@ use Modules\Repository\src\DTOs\RepositoryItemsData;
 use Modules\Repository\src\DTOs\UpdateRepositoryDetailsInterface;
 use Modules\Repository\src\Enumerations\RepositoryResponseEnums;
 use Modules\Repository\src\Exceptions\RepositoryCreationFailedException;
+use Modules\Repository\src\Exceptions\RepositoryInfoFindFailedException;
 use Modules\Repository\src\Exceptions\RepositoryRetrievalFailedException;
 use Modules\Repository\src\Exceptions\RepositoryUpdateFailedException;
 use Modules\Repository\src\Exceptions\RetrieveRepositoryWithCommitsFailedException;
@@ -91,6 +92,20 @@ class RepositoryRepository implements RepositoryRepositoryInterface
         }catch (Exception | ModelNotFoundException $exception){
             report($exception);
             throw new RetrieveRepositoryWithCommitsFailedException(RepositoryResponseEnums::REPOSITORY_RETRIEVAL_WITH_COMMIT_FAILED, 500);
+        }
+    }
+
+    /**
+     * @throws RepositoryInfoFindFailedException
+     */
+    public function findById(int $repoId): RepositoryDto
+    {
+        try {
+            $repository = Repository::query()->find($repoId);
+            return RepositoryDto::fromEloquent($repository);
+        }catch (Exception $exception){
+            report($exception);
+            throw new RepositoryInfoFindFailedException(RepositoryResponseEnums::REPOSITORY_INFO_FIND_FAILED, 500);
         }
     }
 

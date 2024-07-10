@@ -31,6 +31,7 @@ use Modules\User\src\Models\User;
  * @property mixed $commits
  * @property mixed $collaborators
  * @property mixed $token
+ * @property mixed $isCloseToDeadline
  * @method static searchByName(string|null $search)
  * @method static searchByOwner(string|null $search)
  * @method static filterByDeadline(string|null $deadline)
@@ -53,6 +54,7 @@ class Repository extends Model
         'not_meaningful_commit_files_count',
         'last_commit',
         'first_commit',
+        'is_close_to_deadline',
     ];
 
     protected static function newFactory(): RepositoryFactory
@@ -132,6 +134,13 @@ class Repository extends Model
     public function collaborators(): HasMany
     {
         return $this->hasMany(User::class);
+    }
+    public function getIsCloseToDeadlineAttribute(): bool
+    {
+        $now = Carbon::now();
+        $deadline = Carbon::parse($this->deadline);
+
+        return $now->diffInDays($deadline, false) <= 7;
     }
 
 }

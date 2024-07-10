@@ -23,6 +23,9 @@ class RepositoryDto
                                 public ?string $firstCommit,
                                 public ?string $lastCommit,
                                 public string $repositoryUrl,
+                                public bool $isCloseToDeadline
+
+
     )
     {
 
@@ -45,7 +48,9 @@ class RepositoryDto
             $repository->not_meaningful_commit_files_count,
             $repository->first_commit,
             $repository->last_commit,
-            $repository->github_url
+            $repository->github_url,
+            $repository->isCloseToDeadline
+
         );
     }
 
@@ -67,7 +72,8 @@ class RepositoryDto
             'NotMeaningfulCommitFilesCount' => $this->NotMeaningfulCommitFilesCount,
             'firstCommit' => $this->firstCommit,
             'lastCommit' => $this->lastCommit,
-            'githubUrl' => $this->repositoryUrl
+            'githubUrl' => $this->repositoryUrl,
+            'isCloseToDeadline' => $this->isCloseToDeadline
         ];
     }
 }
