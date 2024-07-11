@@ -119,6 +119,56 @@
                         </div>
                     </div>
                 </div>
+                <div class="modal fade" id="updateModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel2">Update Repository</h5>
+                                <button
+                                    type="button"
+                                    class="btn-close"
+                                    data-bs-dismiss="modal"
+                                    aria-label="Close"
+                                ></button>
+                            </div>
+                            <div class="row modal-header">
+                                <div class="col-6">
+                                    <p class="card-text"><strong>Owner:</strong> @{{ updateOwnerName }}</p>
+                                </div>
+                                <div class="col-6">
+                                    <p class="card-text"><strong>Name:</strong> @{{ updateRepoName }}</p>
+                                </div>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col mb-3">
+                                        <label for="updateToken" class="form-label">Token</label>
+                                        <select class="form-select" v-model="updateSelectedToken" :style="getValidationStyle('github_token_id')">
+                                            <option value="">Select Token</option>
+                                            <option v-for="token in tokens" :key="token.id" :value="token.id">@{{ token.login_name }}</option>
+                                        </select>
+                                        <div v-if="getValidationError('github_token_id')" class="text-danger mt-2">@{{ getValidationError('github_token_id') }}</div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col mb-3">
+                                        <label for="updateDeadline" class="form-label">Deadline</label>
+                                        <input type="date" id="updateDeadline" v-model="updateRepoDeadline" :min="minDate" :style="getValidationStyle('update_deadline')" class="form-control" />
+                                        <div v-if="getValidationError('update_deadline')" class="text-danger">@{{ getValidationError('update_deadline') }}</div>
+                                    </div>
+                                </div>
+                                <div v-if="repositoryAccessError" class="alert alert-danger" role="alert">@{{ repositoryAccessError }}</div>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                    Close
+                                </button>
+                                <button type="button" class="btn btn-primary" v-on:click="updateRepo">Update repository</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="card">
@@ -177,17 +227,19 @@
                         <td>
                             @{{repositories[index].deadline}}
                             <div>
-        <span v-if="repositories[index].isCloseToDeadline" class="close-deadline" v-bind:class="{ 'blinking': repositories[index].isCloseToDeadline }">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-exclamation-circle-fill" viewBox="0 0 16 16">
-                <path d="M16 8A8 8 8 1 1 0 0 8a8 8 0 0 1 16 0zM8.93 6.588 8 4.292 7.07 6.588H5.917l.974 1.766-.572 2.588L8 10.071l1.681.871-.572-2.588.974-1.766H8.93zm-.93 4.588a1 1 0 1 0 2 0 1 1 0 0 0-2 0z"/>
-            </svg>
-            Close To Deadline
-        </span>
+                            <span v-if="repositories[index].isCloseToDeadline" class="close-deadline" v-bind:class="{ 'blinking': repositories[index].isCloseToDeadline }">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-exclamation-circle-fill" viewBox="0 0 16 16">
+                                    <path d="M16 8A8 8 8 1 1 0 0 8a8 8 0 0 1 16 0zM8.93 6.588 8 4.292 7.07 6.588H5.917l.974 1.766-.572 2.588L8 10.071l1.681.871-.572-2.588.974-1.766H8.93zm-.93 4.588a1 1 0 1 0 2 0 1 1 0 0 0-2 0z"/>
+                                </svg>
+                                Close To Deadline
+                            </span>
                             </div>
                         </td>
                         <td>
                             <button type="button" class="btn btn-danger">Remove</button>
                             <button type="button" class="btn btn-info" v-on:click="viewRepoDetails(repo.id)">Info</button>
+                            <button type="button" class="btn btn-warning" v-on:click="openUpdateModal(repo)">Update</button>
+
                         </td>
                     </tr>
                     </tbody>
@@ -220,6 +272,20 @@
                 </div>
             </div>
         </div>
+        <div class="toast-container position-fixed bottom-0 end-0 p-3">
+            <div class="toast custom-toast align-items-center" id="UpdateRepositorySuccessToast" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex align-items-center">
+                    <div class="toast-body">
+                        <i class="bi bi-check-circle-fill me-2" style="font-size: 1.5rem; vertical-align: middle;"></i>
+                        <div>
+                            <strong style="vertical-align: middle;">Success</strong>
+                        </div>
+                        <div class="mt-2">Repository Updated successfully!</div>
+                    </div>
+                    <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>
+        </div>
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -241,6 +307,11 @@
                     filterDeadline: '', // Add filterDeadline to data
                     selectedToken:'',
                     minDate: '',
+                    currentRepoId: null,
+                    updateSelectedToken: null,
+                    updateRepoDeadline: null,
+                    updateRepoName: null,
+                    updateOwnerName: null
                 },
                 methods: {
                     openModal() {
@@ -250,8 +321,27 @@
                         self.CreateModalRepoDeadline = '';
                         self.selectedToken = '';
                         self.validationErrors = [];
+                        self.minData = '';
+                        self.repositoryAccessError = null;
                         self.showModal();
                         self.setDateLimits();
+                    },
+                    openUpdateModal(repo) {
+                        const today = new Date();
+                        const yyyy = today.getFullYear();
+                        const mm = String(today.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+                        const dd = String(today.getDate()).padStart(2, '0');
+                        self = this;
+                        self.currentRepoId = repo.id;
+                        self.updateSelectedToken = repo.github_token_id;
+                        self.updateRepoDeadline = repo.deadline.split(' ')[0];
+                        self.minDate = `${yyyy}-${mm}-${dd}`;
+                        self.validationErrors = [];
+                        self.updateRepoName = repo.name;
+                        self.updateOwnerName = repo.owner;
+                        const modalElement = document.getElementById('updateModal');
+                        const modal = new bootstrap.Modal(modalElement);
+                        modal.show();
                     },
                     showModal(){
                         const modalElement = document.getElementById('basicModal');
@@ -410,7 +500,54 @@
                         const toastElement = document.getElementById('successToast');
                         const toast = new bootstrap.Toast(toastElement);
                         toast.show();
-                    }
+                    },
+                    showSuccessFullRepositoryUpdateToast(){
+                        const toastElement = document.getElementById('UpdateRepositorySuccessToast');
+                        const toast = new bootstrap.Toast(toastElement);
+                        toast.show();
+                    },
+                    updateRepo() {
+                        self = this;
+                        fetch(`/repository/${self.currentRepoId}/update`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify({
+                                id: self.currentRepoId,
+                                github_token_id: self.updateSelectedToken,
+                                deadline: self.updateRepoDeadline
+                            })
+                        })
+                            .then(response => {
+                                if (!response.ok) {
+                                    // Check for 422 Bad Request
+                                    if (response.status === 422) {
+                                        return response.json().then(err => {
+                                            self.validationErrors = err.errors;
+                                            throw new Error('Validation failed');
+                                        });
+                                    }
+                                    if (response.status === 400) {
+                                        return response.json().then(err => {
+                                            self.repositoryAccessError = err.message;
+                                            throw new Error('Repository access failed');
+                                        });
+                                    }
+                                    throw new Error('Response was not ok!')
+                                }
+                                return response.json();
+                            })
+                            .then(data => {
+                                $('#updateModal').modal('hide');
+                                self.showSuccessFullRepositoryUpdateToast();
+                                self.fetchRepos();
+                            })
+                            .catch(error => {
+
+                            });
+                    },
                 },
                 mounted(){
                     self = this;
