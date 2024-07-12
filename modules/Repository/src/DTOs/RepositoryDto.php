@@ -23,9 +23,8 @@ class RepositoryDto
                                 public ?string $firstCommit,
                                 public ?string $lastCommit,
                                 public string $repositoryUrl,
-                                public bool $isCloseToDeadline
-
-
+                                public bool $isCloseToDeadline,
+                                public string $commitDashboardUrl
     )
     {
 
@@ -49,8 +48,8 @@ class RepositoryDto
             $repository->first_commit,
             $repository->last_commit,
             $repository->github_url,
-            $repository->isCloseToDeadline
-
+            $repository->isCloseToDeadline,
+            $repository->getCommitsDashboardUrl(),
         );
     }
 
@@ -73,7 +72,8 @@ class RepositoryDto
             'firstCommit' => $this->firstCommit,
             'lastCommit' => $this->lastCommit,
             'githubUrl' => $this->repositoryUrl,
-            'isCloseToDeadline' => $this->isCloseToDeadline
+            'isCloseToDeadline' => $this->isCloseToDeadline,
+            'commitDashboardUrl' => $this->commitDashboardUrl
         ];
     }
 }

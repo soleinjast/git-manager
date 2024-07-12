@@ -4,6 +4,7 @@ namespace Modules\Commit\src\DTOs;
 
 use Illuminate\Support\Collection;
 use Modules\Commit\src\Models\Commit;
+use Modules\User\src\Models\User;
 
 class CommitDto
 {
@@ -16,6 +17,7 @@ class CommitDto
         public string $date,
         public bool $is_first_commit,
         public bool $has_non_meaningful_files,
+        public User $user
     ) {}
     public static function fromEloquentCollection(Collection $commits): array
     {
@@ -34,6 +36,7 @@ class CommitDto
             $commit->date->toDateTimeString(),
             $commit->is_first_commit,
             $commit->has_non_meaningful_files,
+            $commit->user
         );
     }
 
@@ -48,6 +51,7 @@ class CommitDto
             'date' => date('d-m-Y', strtotime($this->date)),
             'is_first_commit' => $this->is_first_commit,
             'has_non_meaningFul_files' => $this->has_non_meaningful_files,
+            'user' => $this->user->toArray()
         ];
     }
 }

@@ -19,6 +19,7 @@ class CommitServiceProvider extends ServiceProvider
     }
     public function boot(): void
     {
+        $this->loadViewsFrom(__DIR__.'/../Ui/resources/views', 'CommitApp');
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
     }
 }

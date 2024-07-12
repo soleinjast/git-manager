@@ -142,5 +142,8 @@ class Repository extends Model
 
         return $now->diffInDays($deadline, false) <= 7;
     }
-
+    public function getCommitsDashboardUrl(): string
+    {
+        return route('commit.commit-list-view', $this->id);
+    }
 }

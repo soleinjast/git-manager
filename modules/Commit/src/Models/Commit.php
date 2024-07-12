@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Modules\Commit\database\factories\CommitFactory;
 use Modules\Repository\src\Models\Repository;
+use Modules\User\src\Models\User;
 
 /**
  * @property mixed $id
@@ -78,5 +79,15 @@ class Commit extends Model
     public function getHasNonMeaningfulFilesAttribute(): bool
     {
         return $this->commitFiles()->where('meaningful', false)->exists();
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'author_git_id', 'git_id')
+            ->where('repository_id', $this->repository_id)
+            ->withDefault([
+            'name' => 'Unknown',
+            'login_name' => 'Unknown',
+        ]);
     }
 }
