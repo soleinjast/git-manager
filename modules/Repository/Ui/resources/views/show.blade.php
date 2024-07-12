@@ -74,11 +74,65 @@
             margin-bottom: 1rem;
             border-radius: 4px;
         }
-    </style>
+        .user-picture {
+            border: 3px solid #5f61e6;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
 
+        .user-picture:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+    </style>
     <div id="repositoryInfo">
-        <div id="repositoryInfo">
-            <div v-if="loading">
+        <div class="modal fade" id="basicModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel1">Update Collaborator</h5>
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"
+                        ></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="modal-header d-flex flex-column align-items-center">
+                            <img :src="UpdateCollaborator.avatarUrl" alt="User Picture" class="rounded-circle mb-3 user-picture" style="width: 100px; height: 100px;">
+
+                            <hr class="w-100 mt-0 mb-3">
+                        </div>
+                        <div class="row">
+                            <div class="col mb-3">
+                                <label for="nameBasic" class="form-label">Github Id</label>
+                                <input type="text" id="nameBasic" class="form-control" v-model="UpdateCollaborator.githubId" disabled/>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col mb-3">
+                                <label for="nameBasic" class="form-label">Github Username</label>
+                                <input type="text" id="nameBasic" class="form-control" v-model="UpdateCollaborator.githubUsername" disabled/>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col mb-3">
+                                <label for="nameBasic" class="form-label">Student Username</label>
+                                <input type="text" id="nameBasic" class="form-control" v-model="UpdateCollaborator.university_username"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                            Close
+                        </button>
+                        <button type="button" class="btn btn-primary" v-on:click="updateCollaboratorInfo" >Update</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div v-if="loading">
                 <!-- Skeleton loader for the card -->
                 <div class="card mb-4 shadow-sm skeleton-loader" style="height: 150px;"></div>
                 <!-- Skeleton loaders for other components -->
@@ -154,7 +208,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="row" v-if="!loading">
                 <div class="col-md-6 col-lg-4 mb-4">
                     <div class="card h-100">
@@ -189,12 +242,18 @@
                                         </div>
                                     </div>
                                     <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                                        <div class="me-2">
-                                            <a :href="collaborator.github_url" target="_blank" v-if="collaborator.name !== ''"><h6 class="mb-0">@{{collaborator.name}}</h6></a>
-                                            <a :href="collaborator.github_url" target="_blank" v-else-if="collaborator.login_name !== ''"><h6 class="mb-0">@{{collaborator.login_name}}</h6></a>
+                                        <div class="d-flex flex-column me-2">
+                                            <a :href="collaborator.github_url" target="_blank" v-if="collaborator.name !== ''">
+                                                <h6 class="mb-0">@{{collaborator.name}}</h6>
+                                            </a>
+                                            <a :href="collaborator.github_url" target="_blank" v-else-if="collaborator.login_name !== ''">
+                                                <h6 class="mb-0">@{{collaborator.login_name}}</h6>
+                                            </a>
+                                            <small class="fw-semibold mt-2" style="color: #fd0a9c" v-if="collaborator.university_username !== ''">university username: @{{collaborator.university_username}}</small>
+                                            <small class="fw-semibold mt-2" style="color: #5f61e6">@{{collaborator.commit_count}} commits</small>
                                         </div>
                                         <div class="user-progress">
-                                            <small class="fw-semibold" style="color: #5f61e6">@{{collaborator.commit_count}} commits</small>
+                                            <button class="btn btn-primary btn-sm" v-on:click="showModal(collaborator)">Update</button>
                                         </div>
                                     </div>
                                 </li>
@@ -214,7 +273,6 @@
                             <h3 class="text-primary card-title text-nowrap mb-2">@{{repositoryInfo.commitsCount}}</h3>
                             <span class="d-block mb-1">First Commit</span>
                             <span class="text-primary card-title text-nowrap mb-2">@{{repositoryInfo.firstCommit}}</span>
-
                             <span class="d-block mb-1">Last Commit</span>
                             <span class="text-primary card-title text-nowrap mb-2">@{{repositoryInfo.lastCommit}}</span>
                         </div>
@@ -262,9 +320,10 @@
                         </div>
                     </div>
                 </div>
+                </div>
             </div>
         </div>
-        </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             let repositoryInfo = new Vue({
@@ -285,6 +344,14 @@
                       firstCommit:'',
                       isCloseToDeadline: false,
                         deadline: ''
+                    },
+                    UpdateCollaborator: {
+                        githubUsername: '',
+                        githubId: '',
+                        avatarUrl: '',
+                        name:'',
+                        university_username: '',
+                        status: ''
                     },
                     fetchRepoInfoUrl: '{{ route("repository.info", ["repoId" => ":repoId"]) }}'
                 },
@@ -319,8 +386,65 @@
                                 self.loading = false
                             });
                     },
+                    updateCollaboratorInfo(){
+                        const repoId = window.location.pathname.split('/').pop();
+                        const self = this;
+                        const url = '{{ route("user.update") }}';
+                        const data = {
+                            login_name: self.UpdateCollaborator.githubUsername,
+                            git_id: self.UpdateCollaborator.githubId,
+                            university_username: self.UpdateCollaborator.university_username,
+                            status: self.UpdateCollaborator.status,
+                            repository_id: repoId,
+                            name: self.UpdateCollaborator.name,
+                            avatar_url: self.UpdateCollaborator.avatarUrl,
+                            _token: '{{ csrf_token() }}'
+                        };
+                        fetch(url, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': data._token
+                            },
+                            body: JSON.stringify(data)
+                        })
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error('Network response was not ok');
+                                }
+                                return response.json();
+                            })
+                            .then(data => {
+                                if (data.success) {
+                                    // Update the collaborator information in the UI
+                                    const collaboratorIndex = self.collabs.findIndex(collab => collab.git_id === self.UpdateCollaborator.githubId);
+                                    if (collaboratorIndex !== -1) {
+                                        self.collabs[collaboratorIndex].university_username = self.UpdateCollaborator.university_username;
+                                    }
+                                    // Close the modal
+                                    const modalElement = document.getElementById('basicModal');
+                                    if (modalElement) {
+                                        const modal = bootstrap.Modal.getInstance(modalElement);
+                                        modal.hide();
+                                    }
+                                } else {
+                                    alert('Failed to update collaborator.');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error updating collaborator:', error);
+                                alert('An error occurred while updating the collaborator.');
+                            });
+                    },
                     renderChart() {
                         self = this
+                        // Destroy existing charts if they exist
+                        if (self.pieChart) {
+                            self.pieChart.destroy();
+                        }
+                        if (self.barChart) {
+                            self.barChart.destroy();
+                        }
                         const ctx = document.getElementById('commitFilesChart').getContext('2d');
                         new Chart(ctx, {
                             type: 'pie',
@@ -353,7 +477,10 @@
                         });
 
                         // Bar Chart
-                        const labels = self.collabs.map(collaborator => collaborator.name || collaborator.login_name);
+                        const labels = self.collabs.map(collaborator => {
+                            let name = collaborator.name || collaborator.login_name;
+                            return collaborator.university_username ? name + ' (' + collaborator.university_username + ')' : name;
+                        });
                         const meaningfulData = self.collabs.map(collaborator => {
                             let total = collaborator.meaningful_commit_files_count + collaborator.not_meaningful_commit_files_count;
                             return (total > 0) ? ((collaborator.meaningful_commit_files_count / total) * 100).toFixed(2) : 0;
@@ -414,7 +541,21 @@
                                 }
                             }
                         });
-                    }
+                    },
+                    showModal(collaborator){
+                        console.log(collaborator);
+                        self.UpdateCollaborator.githubUsername = collaborator.login_name;
+                        self.UpdateCollaborator.githubId = collaborator.git_id;
+                        self.UpdateCollaborator.avatarUrl = collaborator.avatar_url;
+                        self.UpdateCollaborator.name = collaborator.name;
+                        self.UpdateCollaborator.university_username = collaborator.university_username;
+                        self.UpdateCollaborator.status = collaborator.status;
+                        const modalElement = document.getElementById('basicModal');
+                        if (modalElement) {
+                            const modal = new bootstrap.Modal(modalElement);
+                            modal.show();
+                        }
+                    },
                 },
                 mounted() {
                     self = this;

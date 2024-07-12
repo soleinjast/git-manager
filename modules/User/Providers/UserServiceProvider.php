@@ -10,6 +10,7 @@ class UserServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(UserRepositoryInterface::class, UserRepository::class);
+        $this->app->register(RouteServiceProvider::class);
         $this->app->register(EventServiceProvider::class);
     }
     public function boot(): void
