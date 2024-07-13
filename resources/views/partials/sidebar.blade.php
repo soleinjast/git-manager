@@ -20,6 +20,11 @@
                         <div>Repository</div>
                     </a>
                 </li>
+                <li class="menu-item {{ \App\helpers\isActiveRoute('token.index') }}">
+                    <a class="menu-link" href="{{ url(route('token.index')) }}">
+                        <div>Token</div>
+                    </a>
+                </li>
             </ul>
         </li>
     </ul>

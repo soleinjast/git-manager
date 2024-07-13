@@ -17,7 +17,9 @@ class CommitDto
         public string $date,
         public bool $is_first_commit,
         public bool $has_non_meaningful_files,
-        public User $user
+        public User $user,
+        public string $commitDetailDashboardUrl,
+        public string $githubUrl
     ) {}
     public static function fromEloquentCollection(Collection $commits): array
     {
@@ -36,7 +38,9 @@ class CommitDto
             $commit->date->toDateTimeString(),
             $commit->is_first_commit,
             $commit->has_non_meaningful_files,
-            $commit->user
+            $commit->user,
+            $commit->commits_files_dashboard_url,
+            $commit->github_url
         );
     }
 
@@ -51,7 +55,9 @@ class CommitDto
             'date' => date('d-m-Y', strtotime($this->date)),
             'is_first_commit' => $this->is_first_commit,
             'has_non_meaningFul_files' => $this->has_non_meaningful_files,
-            'user' => $this->user->toArray()
+            'user' => $this->user->toArray(),
+            'commitDetailDashboardUrl' => $this->commitDetailDashboardUrl,
+            'githubUrl' => $this->githubUrl,
         ];
     }
 }

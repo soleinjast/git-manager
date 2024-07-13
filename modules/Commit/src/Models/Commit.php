@@ -23,6 +23,9 @@ use Modules\User\src\Models\User;
  * @property mixed $created_at
  * @property mixed $updated_at
  * @property mixed $has_non_meaningful_files
+ * @property mixed $user
+ * @property mixed $commits_files_dashboard_url
+ * @property mixed $github_url
  */
 class Commit extends Model
 {
@@ -45,7 +48,7 @@ class Commit extends Model
         'updated_at' => 'datetime:Y-m-d H:i:s',
     ];
 
-    protected $appends = ['has_non_meaningful_files'];
+    protected $appends = ['has_non_meaningful_files', 'commits_files_dashboard_url', 'github_url'];
 
     protected static function newFactory(): CommitFactory
     {
@@ -89,5 +92,14 @@ class Commit extends Model
             'name' => 'Unknown',
             'login_name' => 'Unknown',
         ]);
+    }
+    public function getCommitsFilesDashboardUrlAttribute(): string
+    {
+        return route('commit.commit-detail-view', [$this->repository_id, $this->sha]);
+    }
+
+    public function getGithubUrlAttribute(): string
+    {
+        return $this->repository->getGithubUrlAttribute().'/commit/'.$this->sha;
     }
 }
