@@ -107,6 +107,48 @@ class StoreCollaboratorsTest extends TestCase
 
         $job->handle($userRepositoryMock);
     }
+
+    public function test_handle_user_creation_or_update_with_exist_user_on_job()
+    {
+        $githubToken = GithubToken::factory()->create();
+        $repository = Repository::factory()->create([
+            'owner' => 'test-owner',
+            'name' => 'test-name',
+            'github_token_id' => $githubToken->id,
+            'deadline' => now()->addDays(1),
+        ]);
+        User::factory()->create([
+            'repository_id' => $repository->id,
+            'login_name' => 'collaborator1',
+            'name' => 'Collaborator One',
+            'git_id' => 1,
+            'avatar_url' => 'https://example.com/avatar1.png',
+            'university_username' => 'testusername',
+            'status' => 'approved'
+        ]);
+
+        $repositoryDto = RepositoryDto::fromEloquent($repository);
+
+        $userData = [
+            'login' => 'collaborator1',
+            'name' => 'Collaborator One',
+            'id' => 1,
+            'avatar_url' => 'https://example.com/avatar1.png',
+            'university_username' => '',
+            'status' => 'approved'
+        ];
+
+        $job = new CreateUser($repositoryDto, $userData);
+
+        $userRepositoryMock = Mockery::mock(UserRepositoryInterface::class);
+        $userRepositoryMock->shouldReceive('updateOrCreate')
+            ->once()
+            ->andReturnNull();
+
+        $this->app->instance(UserRepositoryInterface::class, $userRepositoryMock);
+
+        $job->handle($userRepositoryMock);
+    }
     public function test_update_or_create_creates_a_new_user()
     {
         $githubToken = GithubToken::factory()->create();

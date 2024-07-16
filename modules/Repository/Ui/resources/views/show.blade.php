@@ -84,6 +84,19 @@
             transform: scale(1.05);
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
         }
+
+        .invitation-status {
+            color: #e63946;
+        }
+
+        .icon-text {
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .icon-text svg {
+            margin-right: 8px;
+        }
     </style>
     <div id="repositoryInfo">
         <div class="modal fade" id="basicModal" tabindex="-1" aria-hidden="true">
@@ -234,8 +247,8 @@
                                     <span>Info</span>
                                 </div>
                             </div>
-                            <ul class="p-0 m-0" v-for="collaborator in collabs">
-                                <li class="d-flex mb-4 pb-1">
+                            <ul class="p-0 m-0">
+                                <li class="d-flex mb-4 pb-1" v-for="collaborator in collabs" :key="collaborator.id">
                                     <div class="avatar flex-shrink-0 me-3">
                                         <div class="avatar avatar-online">
                                             <img :src="collaborator.avatar_url" alt class="w-px-40 h-auto rounded-circle" />
@@ -244,15 +257,26 @@
                                     <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
                                         <div class="d-flex flex-column me-2">
                                             <a :href="collaborator.github_url" target="_blank" v-if="collaborator.name !== ''">
-                                                <h6 class="mb-0">@{{collaborator.name}}</h6>
+                                                <h6 class="mb-0">@{{ collaborator.name }}</h6>
                                             </a>
                                             <a :href="collaborator.github_url" target="_blank" v-else-if="collaborator.login_name !== ''">
-                                                <h6 class="mb-0">@{{collaborator.login_name}}</h6>
+                                                <h6 class="mb-0">@{{ collaborator.login_name }}</h6>
                                             </a>
-                                            <small class="fw-semibold mt-2" style="color: #fd0a9c" v-if="collaborator.university_username !== ''">university username: @{{collaborator.university_username}}</small>
-                                            <small class="fw-semibold mt-2" style="color: #5f61e6">@{{collaborator.commit_count}} commits</small>
+                                            <small class="fw-semibold mt-2" style="color: #fd0a9c" v-if="collaborator.university_username !== ''">
+                                                university username: @{{ collaborator.university_username }}
+                                            </small>
+                                            <small class="fw-semibold mt-2" style="color: #5f61e6">
+                                                @{{ collaborator.commit_count }} commits
+                                            </small>
+
+                                            <small class="fw-semibold mt-2 invitation-status" v-if="collaborator.status === 'pending'">
+                                              <span class="icon-text">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill: rgba(255, 0, 0, 1);transform: ;msFilter:;"><path d="M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8z"></path><path d="M11 11h2v6h-2zm0-4h2v2h-2z"></path></svg>
+                                                <span>Invitation sent, awaiting acceptance.</span>
+                                              </span>
+                                            </small>
                                         </div>
-                                        <div class="user-progress">
+                                        <div class="user-progress" v-if="collaborator.status !== 'pending'">
                                             <button class="btn btn-primary btn-sm" v-on:click="showModal(collaborator)">Update</button>
                                         </div>
                                     </div>
@@ -272,9 +296,11 @@
                             <span class="d-block mb-1">Total Commits <a :href="repositoryInfo.commitDashboardUrl" class="align-content-center"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill: rgba(10, 65, 255, 1);transform: ;msFilter:;"><path d="M8.465 11.293c1.133-1.133 3.109-1.133 4.242 0l.707.707 1.414-1.414-.707-.707c-.943-.944-2.199-1.465-3.535-1.465s-2.592.521-3.535 1.465L4.929 12a5.008 5.008 0 0 0 0 7.071 4.983 4.983 0 0 0 3.535 1.462A4.982 4.982 0 0 0 12 19.071l.707-.707-1.414-1.414-.707.707a3.007 3.007 0 0 1-4.243 0 3.005 3.005 0 0 1 0-4.243l2.122-2.121z"></path><path d="m12 4.929-.707.707 1.414 1.414.707-.707a3.007 3.007 0 0 1 4.243 0 3.005 3.005 0 0 1 0 4.243l-2.122 2.121c-1.133 1.133-3.109 1.133-4.242 0L10.586 12l-1.414 1.414.707.707c.943.944 2.199 1.465 3.535 1.465s2.592-.521 3.535-1.465L19.071 12a5.008 5.008 0 0 0 0-7.071 5.006 5.006 0 0 0-7.071 0z"></path></svg><path d="M8.465 11.293c1.133-1.133 3.109-1.133 4.242 0l.707.707 1.414-1.414-.707-.707c-.943-.944-2.199-1.465-3.535-1.465s-2.592.521-3.535 1.465L4.929 12a5.008 5.008 0 0 0 0 7.071 4.983 4.983 0 0 0 3.535 1.462A4.982 4.982 0 0 0 12 19.071l.707-.707-1.414-1.414-.707.707a3.007 3.007 0 0 1-4.243 0 3.005 3.005 0 0 1 0-4.243l2.122-2.121z"></path><path d="m12 4.929-.707.707 1.414 1.414.707-.707a3.007 3.007 0 0 1 4.243 0 3.005 3.005 0 0 1 0 4.243l-2.122 2.121c-1.133 1.133-3.109 1.133-4.242 0L10.586 12l-1.414 1.414.707.707c.943.944 2.199 1.465 3.535 1.465s2.592-.521 3.535-1.465L19.071 12a5.008 5.008 0 0 0 0-7.071 5.006 5.006 0 0 0-7.071 0z"></path></svg></a></span>
                             <h3 class="text-primary card-title text-nowrap mb-2">@{{repositoryInfo.commitsCount}}</h3>
                             <span class="d-block mb-1">First Commit</span>
-                            <span class="text-primary card-title text-nowrap mb-2">@{{repositoryInfo.firstCommit}}</span>
+                            <span class="text-primary card-title text-nowrap mb-2" v-if="repositoryInfo.firstCommit !== ''">@{{repositoryInfo.firstCommit}}</span>
+                            <span class="text-primary card-title text-nowrap mb-2" v-if="repositoryInfo.firstCommit === ''">No Date Specified</span>
                             <span class="d-block mb-1">Last Commit</span>
-                            <span class="text-primary card-title text-nowrap mb-2">@{{repositoryInfo.lastCommit}}</span>
+                            <span class="text-primary card-title text-nowrap mb-2" v-if="repositoryInfo.lastCommit !== ''">@{{repositoryInfo.lastCommit}}</span>
+                            <span class="text-primary card-title text-nowrap mb-2" v-if="repositoryInfo.lastCommit === ''">No Date Specified</span>
                         </div>
                     </div>
                 </div>

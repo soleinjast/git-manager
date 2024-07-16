@@ -572,7 +572,7 @@ class RepositoryAutoCreationTest extends TestCase
         });
 
         $this->assertInstanceOf(JsonResponse::class, $response);
-        $this->assertEquals(422, $response->status());
+        $this->assertEquals(400, $response->status());
         $this->assertFalse($response->getData(true)['success']);
         $this->assertEquals("Invalid GitHub username: invaliduser", $response->getData(true)['message']);
     }
@@ -598,7 +598,7 @@ class RepositoryAutoCreationTest extends TestCase
             return response()->json(['success' => true]);
         });
         $this->assertInstanceOf(JsonResponse::class, $response);
-        $this->assertEquals(422, $response->status());
+        $this->assertEquals(400, $response->status());
         $this->assertFalse($response->getData(true)['success']);
         $this->assertEquals("Invalid GitHub username: validuser", $response->getData(true)['message']);
     }

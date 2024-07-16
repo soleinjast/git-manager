@@ -40,7 +40,7 @@ class ValidateGitHubUsernames
         foreach ($members as $key => $member) {
             $data = $userData[$member['github_username']] ?? null;
             if ($data === null) {
-                return $this->errorResponse("Invalid GitHub username: {$member['github_username']}", [], 422);
+                return $this->errorResponse("Invalid GitHub username: {$member['github_username']}", [], 400);
             }
             $members[$key]['git_id'] = $data['id'];
             $members[$key]['name'] = $data['name'] ?? null;

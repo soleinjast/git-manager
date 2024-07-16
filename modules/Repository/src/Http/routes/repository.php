@@ -35,6 +35,8 @@ Route::get('fetch', FetchRepositoryController::class)->name('fetch');
 Route::get('/{repoId}/repositoryInfo', FetchRepositoryInfoController::class)
     ->middleware([ValidateRepositoryIdForFetchingInfo::class])
     ->name('info');
+Route::view('auto-create', 'RepositoryApp::auto-create')
+    ->name('auto-create-view');
 Route::view('/{repoId}', 'RepositoryApp::show')
     ->name('repository-detail-view');
 Route::post('auto-create', AutoRepositoryController::class)
@@ -43,3 +45,4 @@ Route::post('auto-create', AutoRepositoryController::class)
         ValidateGithubOrganizationAccess::class,
         ValidateGitHubUsernames::class
     ])->name('auto-create');
+
