@@ -4,6 +4,7 @@
 use Illuminate\Support\Facades\Route;
 use Modules\Repository\src\Http\Controllers\AutoRepositoryController;
 use Modules\Repository\src\Http\Controllers\CreateRepositoryController;
+use Modules\Repository\src\Http\Controllers\DeleteRepositoryController;
 use Modules\Repository\src\Http\Controllers\FetchRepositoryController;
 use Modules\Repository\src\Http\Controllers\FetchRepositoryInfoController;
 use Modules\Repository\src\Http\Controllers\UpdateRepositoryController;
@@ -45,4 +46,7 @@ Route::post('auto-create', AutoRepositoryController::class)
         ValidateGithubOrganizationAccess::class,
         ValidateGitHubUsernames::class
     ])->name('auto-create');
+Route::post('{id}/delete', DeleteRepositoryController::class)
+    ->middleware([ValidateRepositoryId::class])
+    ->name('delete');
 

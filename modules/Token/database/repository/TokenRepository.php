@@ -8,6 +8,7 @@ use Modules\Token\src\DTOs\CreateTokenDetailsInterface;
 use Modules\Token\src\DTOs\TokenDto;
 use Modules\Token\src\Enumerations\GithubTokenApiResponses;
 use Modules\Token\src\Exceptions\TokenCreationFailedException;
+use Modules\Token\src\Exceptions\TokenDeletionFailedException;
 use Modules\Token\src\Models\GithubToken;
 
 class TokenRepository implements TokenRepositoryInterface
@@ -39,6 +40,20 @@ class TokenRepository implements TokenRepositoryInterface
             return $tokens->toArray();
         } catch (Exception $exception) {
             throw new Exception($exception->getMessage());
+        }
+    }
+
+    /**
+     * @throws TokenDeletionFailedException
+     */
+    public function delete(int $id): bool
+    {
+        try {
+            $token = GithubToken::query()->find($id);
+            return $token->delete();
+        } catch (Exception $exception) {
+            report($exception);
+            throw new TokenDeletionFailedException("Token deletion failed!");
         }
     }
 }

@@ -13,6 +13,7 @@ use Modules\Repository\src\DTOs\RepositoryItemsData;
 use Modules\Repository\src\DTOs\UpdateRepositoryDetailsInterface;
 use Modules\Repository\src\Enumerations\RepositoryResponseEnums;
 use Modules\Repository\src\Exceptions\RepositoryCreationFailedException;
+use Modules\Repository\src\Exceptions\RepositoryDeletionFailedException;
 use Modules\Repository\src\Exceptions\RepositoryInfoFindFailedException;
 use Modules\Repository\src\Exceptions\RepositoryRetrievalFailedException;
 use Modules\Repository\src\Exceptions\RepositoryUpdateFailedException;
@@ -119,6 +120,20 @@ class RepositoryRepository implements RepositoryRepositoryInterface
         }catch (Exception $exception){
             report($exception);
             throw new ChunkAllRepositoriesFailedException();
+        }
+    }
+
+    /**
+     * @throws RepositoryDeletionFailedException
+     */
+    public function delete(int $repoId): bool
+    {
+        try {
+            $repository = Repository::query()->find($repoId);
+            return $repository->delete();
+        }catch (Exception $exception){
+            report($exception);
+            throw new RepositoryDeletionFailedException(RepositoryResponseEnums::REPOSITORY_DELETE_FAILED, 500);
         }
     }
 }

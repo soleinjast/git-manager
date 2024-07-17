@@ -8,7 +8,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Modules\Repository\src\DTOs\RepositoryDto;
-use Modules\User\database\repository\UserRepository;
 use Modules\User\database\repository\UserRepositoryInterface;
 use Modules\User\src\DTOs\UserCreateDetails;
 use Modules\User\src\Models\User;

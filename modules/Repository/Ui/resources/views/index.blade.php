@@ -169,6 +169,30 @@
                         </div>
                     </div>
                 </div>
+                <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Confirm Delete</h5>
+                                <button
+                                    type="button"
+                                    class="btn-close"
+                                    data-bs-dismiss="modal"
+                                    aria-label="Close"
+                                ></button>
+                            </div>
+                            <div class="modal-body">
+                                Are you sure you want to delete this repository?
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                    Cancel
+                                </button>
+                                <button type="button" class="btn btn-danger" @click="confirmDeleteRepo">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="card">
@@ -236,7 +260,7 @@
                             </div>
                         </td>
                         <td>
-                            <button type="button" class="btn btn-danger">Remove</button>
+                            <button type="button" class="btn btn-danger" v-on:click="deleteRepo(repo.id)">Remove</button>
                             <button type="button" class="btn btn-info" v-on:click="viewRepoDetails(repo.id)">Info</button>
                             <button type="button" class="btn btn-warning" v-on:click="openUpdateModal(repo)">Update</button>
 
@@ -286,6 +310,20 @@
                 </div>
             </div>
         </div>
+        <div class="toast-container position-fixed bottom-0 end-0 p-3">
+            <div class="toast custom-toast align-items-center" id="deleteSuccessToast" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex align-items-center">
+                    <div class="toast-body">
+                        <i class="bi bi-check-circle-fill me-2" style="font-size: 1.5rem; vertical-align: middle;"></i>
+                        <div>
+                            <strong style="vertical-align: middle;">Success</strong>
+                        </div>
+                        <div class="mt-2">Repository deleted successfully!</div>
+                    </div>
+                    <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>
+        </div>
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -311,7 +349,9 @@
                     updateSelectedToken: null,
                     updateRepoDeadline: null,
                     updateRepoName: null,
-                    updateOwnerName: null
+                    updateOwnerName: null,
+                    repoIdToDelete: null,
+
                 },
                 methods: {
                     openModal() {
@@ -486,7 +526,10 @@
                             window.location.href = '{{ route("repository.repository-detail-view", ":repoId") }}'.replace(':repoId', repoId);
                         },
                     deleteRepo(id) {
-                        // Delete repository logic
+                        self.repoIdToDelete = id;
+                        const modalElement = document.getElementById('deleteModal');
+                        const modal = new bootstrap.Modal(modalElement);
+                        modal.show();
                     },
                     getValidationError(field) {
                         self = this
@@ -547,6 +590,36 @@
                             .catch(error => {
 
                             });
+                    },
+                    confirmDeleteRepo() {
+                        self = this;
+                        fetch(`/repository/${self.repoIdToDelete}/delete`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            }
+                        })
+                            .then(response => {
+                                if (!response.ok) {
+                                    // Handle error response if needed
+                                    throw new Error('Failed to delete repository');
+                                }
+                                return response.json();
+                            })
+                            .then(data => {
+                                $('#deleteModal').modal('hide');
+                                self.showDeleteSuccessToast();
+                                self.fetchRepos();
+                            })
+                            .catch(error => {
+                                console.error('Error deleting repository:', error);
+                            });
+                    },
+                    showDeleteSuccessToast() {
+                        const toastElement = document.getElementById('deleteSuccessToast');
+                        const toast = new bootstrap.Toast(toastElement);
+                        toast.show();
                     },
                 },
                 mounted(){

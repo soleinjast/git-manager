@@ -8,6 +8,7 @@ use Modules\Repository\src\DTOs\CreateRepositoryDetails;
 use Modules\Repository\src\DTOs\RepositoryDto;
 use Modules\Repository\src\DTOs\UpdateRepositoryDetails;
 use Modules\Repository\src\Exceptions\RepositoryCreationFailedException;
+use Modules\Repository\src\Exceptions\RepositoryDeletionFailedException;
 use Modules\Repository\src\Exceptions\RepositoryInfoFindFailedException;
 use Modules\Repository\src\Exceptions\RepositoryRetrievalFailedException;
 use Modules\Repository\src\Exceptions\RepositoryUpdateFailedException;
@@ -42,5 +43,10 @@ interface RepositoryRepositoryInterface
      * @throws RepositoryInfoFindFailedException
      */
     public function findById(int $repoId): RepositoryDto;
+
+    /**
+     * @throws RepositoryDeletionFailedException
+     */
+    public function delete(int $repoId): bool;
 
 }

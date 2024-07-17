@@ -146,4 +146,9 @@ class Repository extends Model
     {
         return route('commit.commit-list-view', $this->id);
     }
+
+    public function branches(): HasMany
+    {
+        return $this->hasMany(Branch::class);
+    }
 }

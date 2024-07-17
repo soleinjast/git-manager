@@ -12,4 +12,5 @@ class RepositoryResponseEnums
 
     const ACCESS_FAILED_FOR_CREATING_REPOSITORY_UNDER_ORGANIZATION = 'You do not have permission to create repositories in this organization.';
     const REPOSITORY_INFO_FIND_FAILED = 'Failed to find repository info.';
+    const REPOSITORY_DELETE_FAILED = 'Failed to delete repository.';
 }

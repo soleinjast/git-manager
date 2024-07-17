@@ -4,6 +4,8 @@ namespace Modules\Token\src\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Modules\Repository\src\Models\Repository;
 use Modules\Token\database\factories\GithubTokenFactory;
 
 /**
@@ -25,5 +27,9 @@ class GithubToken extends Model
     protected static function newFactory() : GithubTokenFactory
     {
         return new GithubTokenFactory();
+    }
+    public function repositories(): HasMany
+    {
+        return $this->hasMany(Repository::class);
     }
 }

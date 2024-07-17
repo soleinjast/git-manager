@@ -6,8 +6,10 @@ use Illuminate\Foundation\Support\Providers\EventServiceProvider as BaseEventSer
 use Modules\Repository\src\Events\RepositoriesCreationOnGithubCreated;
 use Modules\Repository\src\Events\RepositoriesCreationOnGithubInitiated;
 use Modules\Repository\src\Events\RepositoryCreated;
+use Modules\Repository\src\Events\RepositoryDeleted;
 use Modules\Repository\src\Events\RepositoryUpdate;
 use Modules\Repository\src\Listeners\CreateRepositoryOnGit;
+use Modules\Repository\src\Listeners\DeleteBranches;
 use Modules\Repository\src\Listeners\StoreBranches;
 use Modules\Repository\src\Listeners\StoreRepositoryAndCollaboratorsOnLocal;
 use Modules\Repository\src\Listeners\UpdateBranches;
@@ -20,6 +22,9 @@ class EventServiceProvider extends BaseEventServiceProvider
         ],
         RepositoryUpdate::class => [
             UpdateBranches::class
+        ],
+        RepositoryDeleted::class => [
+            DeleteBranches::class
         ],
         RepositoriesCreationOnGithubInitiated::class => [
             CreateRepositoryOnGit::class,
