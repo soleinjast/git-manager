@@ -88,6 +88,14 @@ class Repository extends Model
         return $query;
     }
 
+    public function scopeFilterByToken(Builder $query, ?string $tokenId): Builder
+    {
+        if ($tokenId) {
+            return $query->where('github_token_id', $tokenId);
+        }
+        return $query;
+    }
+
     public function token(): BelongsTo
     {
         return $this->belongsTo(GithubToken::class, 'github_token_id');

@@ -725,6 +725,7 @@ class RepositoryAutoCreationTest extends TestCase
             repositoryUrl: 'https://github.com/qasm-group-project/job-searching-api',
             isCloseToDeadline: false,
             commitDashboardUrl: "dashboard.com",
+            token_login_name: $githubToken->login_name,
         ));
 
         $userRepositoryMock = Mockery::mock(UserRepositoryInterface::class);

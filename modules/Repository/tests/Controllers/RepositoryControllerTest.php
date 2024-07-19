@@ -446,6 +446,26 @@ class RepositoryControllerTest extends TestCase
         $response->assertStatus(200);
     }
 
+    public function testCanRetrieveRepositoriesWithSearchByToken()
+    {
+        $githubTokens = GithubToken::factory()->count(2)->create();
+        Repository::factory()->create([
+            'owner' => 'owner1',
+            'name' => 'repo-1',
+            'github_token_id' => $githubTokens[0]->id,
+            'deadline' => now()->addDay(),
+        ]);
+        Repository::factory()->create([
+            'owner' => 'owner2',
+            'name' => 'repo-2',
+            'github_token_id' => $githubTokens[1]->id,
+            'deadline' => now()->addDay(),
+        ]);
+        $response = $this->get(route('repository.fetch', ['filter_token' => $githubTokens[0]->id]));
+        $this->assertCount(1, $response->json()['data']);
+        $response->assertStatus(200);
+    }
+
     public function test_it_can_filter_repositories_by_deadline()
     {
         $githubToken = GithubToken::factory()->create();

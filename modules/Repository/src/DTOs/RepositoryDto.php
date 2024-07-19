@@ -24,7 +24,8 @@ class RepositoryDto
                                 public ?string $lastCommit,
                                 public string $repositoryUrl,
                                 public bool $isCloseToDeadline,
-                                public string $commitDashboardUrl
+                                public string $commitDashboardUrl,
+                                public string $token_login_name
     )
     {
 
@@ -50,6 +51,7 @@ class RepositoryDto
             $repository->github_url,
             $repository->isCloseToDeadline,
             $repository->getCommitsDashboardUrl(),
+            $repository->token->login_name
         );
     }
 
@@ -73,7 +75,8 @@ class RepositoryDto
             'lastCommit' => $this->lastCommit,
             'githubUrl' => $this->repositoryUrl,
             'isCloseToDeadline' => $this->isCloseToDeadline,
-            'commitDashboardUrl' => $this->commitDashboardUrl
+            'commitDashboardUrl' => $this->commitDashboardUrl,
+            'token_login_name' => $this->token_login_name
         ];
     }
 }

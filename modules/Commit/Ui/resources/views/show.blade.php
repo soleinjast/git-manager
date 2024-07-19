@@ -125,7 +125,10 @@
                             <td>
                                 <button class="btn btn-primary btn-sm" @click="viewChanges(file.changes)">View Changes</button>
                             </td>
-                            <td>@{{ file.meaningful ? 'Yes' : 'No' }} <span v-if="file.meaningful" class="badge bg-success">Meaningful</span></td>
+                            <td>@{{ file.meaningful ? 'Yes' : 'No' }}
+                                <span v-if="file.meaningful" class="badge bg-success">Meaningful</span>
+                                <span v-else class="badge bg-danger">Non Meaningful</span>
+                            </td>
                         </tr>
                         </tbody>
                         <tfoot class="table-border-bottom-0">

@@ -3,6 +3,7 @@
 namespace Modules\Token\database\repository;
 
 use Exception;
+use Modules\Repository\src\Models\Repository;
 use Modules\Token\src\DTOs\CreateTokenDetails;
 use Modules\Token\src\DTOs\CreateTokenDetailsInterface;
 use Modules\Token\src\DTOs\TokenDto;
@@ -36,7 +37,7 @@ class TokenRepository implements TokenRepositoryInterface
      */
     public function fetch() : array {
         try {
-            $tokens = GithubToken::query()->orderBy('created_at', 'DESC')->get();
+            $tokens = GithubToken::query()->withCount('repositories')->orderBy('created_at', 'DESC')->get();
             return $tokens->toArray();
         } catch (Exception $exception) {
             throw new Exception($exception->getMessage());

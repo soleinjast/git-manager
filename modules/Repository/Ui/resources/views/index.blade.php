@@ -210,6 +210,13 @@
                     <label style="color: #5f61e6" class="mb-2">Filter by deadline</label>
                     <input type="date" v-model="filterDeadline" class="form-control">
                 </div>
+                <div class="col-md-4">
+                    <label style="color: #5f61e6" class="mb-2 mt-2">Filter by token</label>
+                    <select class="form-select" v-model="filterToken">
+                        <option value="">All Tokens</option>
+                        <option v-for="token in tokens" :key="token.id" :value="token.id">@{{ token.login_name }}</option>
+                    </select>
+                </div>
             </div>
             <div class="table-responsive text-nowrap">
                 <table class="table">
@@ -221,6 +228,7 @@
                         <th>commits count</th>
                         <th>commit files count</th>
                         <th>Status</th>
+                        <th>token</th>
                         <th>Deadline</th>
                         <th>Actions</th>
                     </tr>
@@ -248,6 +256,7 @@
                             @{{ repositories[index].currentCommitsFilesCount }}
                         </td>
                         <td><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="green" class="bi bi-check-circle-fill" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/></svg></td>
+                        <td>@{{repositories[index].token_login_name}}</td>
                         <td>
                             @{{repositories[index].deadline}}
                             <div>
@@ -275,6 +284,7 @@
                         <th>commits count</th>
                         <th>commit files count</th>
                         <th>Status</th>
+                        <th>token</th>
                         <th>Deadline</th>
                         <th>Actions</th>
                     </tr>
@@ -351,6 +361,7 @@
                     updateRepoName: null,
                     updateOwnerName: null,
                     repoIdToDelete: null,
+                    filterToken: '',
 
                 },
                 methods: {
@@ -409,6 +420,9 @@
                         }
                         if (self.filterDeadline) {
                             params.append('filter_deadline', self.filterDeadline);
+                        }
+                        if (self.filterToken) {
+                            params.append('filter_token', self.filterToken);
                         }
                         if (params.toString()) {
                             url += `?${params.toString()}`;
@@ -656,6 +670,9 @@
                         self.fetchRepos();
                     },
                     filterDeadline(newVal, oldVal) {
+                        self.fetchRepos();
+                    },
+                    filterToken(newVal, oldVal) {
                         self.fetchRepos();
                     }
                 },

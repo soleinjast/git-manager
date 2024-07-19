@@ -80,7 +80,6 @@
                 </div>
             </div>
         </div>
-
         <!-- Delete Confirmation Modal -->
         <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog" role="document">
@@ -116,6 +115,7 @@
                         <th class="text-center">Token</th>
                         <th class="text-center">GitHub Username</th>
                         <th class="text-center">GitHub ID</th>
+                        <th class="text-center">Attached Repositories</th>
                         <th class="text-center">Created At</th>
                         <th class="text-center">Actions</th>
                     </tr>
@@ -130,6 +130,7 @@
                         <td class="text-center">
                             <span :class="getBadgeClass(token.githubId)" class="badge me-1">@{{token.githubId}}</span>
                         </td>
+                        <td class="text-center">@{{token.repositories_count}}</td>
                         <td class="text-center">
                             @{{token.created_at}}
                         </td>
