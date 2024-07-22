@@ -229,15 +229,7 @@
                                 <h5 class="m-0 me-2">Repository Collaborators</h5>
                             </div>
                             <div class="dropdown">
-                                <button
-                                    class="btn p-0"
-                                    type="button"
-                                    id="orderStatistics"
-                                    data-bs-toggle="dropdown"
-                                    aria-haspopup="true"
-                                    aria-expanded="false"
-                                >
-                                </button>
+                                <button class="btn p-0" type="button" id="orderStatistics" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
                             </div>
                         </div>
                         <div class="card-body">
@@ -268,12 +260,11 @@
                                             <small class="fw-semibold mt-2" style="color: #5f61e6">
                                                 @{{ collaborator.commit_count }} commits
                                             </small>
-
                                             <small class="fw-semibold mt-2 invitation-status" v-if="collaborator.status === 'pending'">
-                                              <span class="icon-text">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill: rgba(255, 0, 0, 1);transform: ;msFilter:;"><path d="M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8z"></path><path d="M11 11h2v6h-2zm0-4h2v2h-2z"></path></svg>
-                                                <span>Invitation sent, awaiting acceptance.</span>
-                                              </span>
+                                    <span class="icon-text">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill: rgba(255, 0, 0, 1)"><path d="M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8z"></path><path d="M11 11h2v6h-2zm0-4h2v2h-2z"></path></svg>
+                                        <span>Invitation sent, awaiting acceptance.</span>
+                                    </span>
                                             </small>
                                         </div>
                                         <div class="user-progress" v-if="collaborator.status !== 'pending'">
@@ -293,7 +284,7 @@
                                     <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAAXNSR0IArs4c6QAAAaJJREFUaEPtmOFOAyEQhOmTWZ9MfbLqk2nHgKFk4diZNXrJ3p/a9ID5Zpblzks5+XU5uf6SAH+dYCaQCYgOZAmJBsrDMwHZQnGCTGAw8Fq/4/OplNK+v5dSPupvr6LpD8MjE4Cwl01xb/f7QkAiAOAyhDe3Nxm+b5NBVACP6zOw5zs8Soy6FAA4fjNWbfXeROGzlcusxGgIBeDTEL9TElZqgASE+2IBLBE74pvAMAgWYHTfI34F4dbjHlDreaxlZh6AYA/13cu9F5iFx/gZ92cpuPeCBWBtztXmUgBmnWy13oPmCAAmxSbwXwC463aw15t4eAIKAHOSHwIcHSZj51D2gNwQmPod69bdOTqH5POEAbD6N5OCVT5uPe4B1b2xjLyPxuqjyE+ILICVwi7EbONSWqhBFX/Vw1FSuCB29prZNwu6kykAEMAcRGOXY/ZPSAmtniqPWjF+R/eCePptDJOoCfRCPYeS5Hq/aCRAnwj+tv6t0r9m7qR0eM9vABwuGnlDAkS6ycyVCTCuRY7JBCLdZObKBBjXIsdkApFuMnOdPoEvx+ZNMQfU5y8AAAAASUVORK5CYII=" alt="git"/>
                                 </div>
                             </div>
-                            <span class="d-block mb-1">Total Commits <a :href="repositoryInfo.commitDashboardUrl" class="align-content-center"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill: rgba(10, 65, 255, 1);transform: ;msFilter:;"><path d="M8.465 11.293c1.133-1.133 3.109-1.133 4.242 0l.707.707 1.414-1.414-.707-.707c-.943-.944-2.199-1.465-3.535-1.465s-2.592.521-3.535 1.465L4.929 12a5.008 5.008 0 0 0 0 7.071 4.983 4.983 0 0 0 3.535 1.462A4.982 4.982 0 0 0 12 19.071l.707-.707-1.414-1.414-.707.707a3.007 3.007 0 0 1-4.243 0 3.005 3.005 0 0 1 0-4.243l2.122-2.121z"></path><path d="m12 4.929-.707.707 1.414 1.414.707-.707a3.007 3.007 0 0 1 4.243 0 3.005 3.005 0 0 1 0 4.243l-2.122 2.121c-1.133 1.133-3.109 1.133-4.242 0L10.586 12l-1.414 1.414.707.707c.943.944 2.199 1.465 3.535 1.465s2.592-.521 3.535-1.465L19.071 12a5.008 5.008 0 0 0 0-7.071 5.006 5.006 0 0 0-7.071 0z"></path></svg><path d="M8.465 11.293c1.133-1.133 3.109-1.133 4.242 0l.707.707 1.414-1.414-.707-.707c-.943-.944-2.199-1.465-3.535-1.465s-2.592.521-3.535 1.465L4.929 12a5.008 5.008 0 0 0 0 7.071 4.983 4.983 0 0 0 3.535 1.462A4.982 4.982 0 0 0 12 19.071l.707-.707-1.414-1.414-.707.707a3.007 3.007 0 0 1-4.243 0 3.005 3.005 0 0 1 0-4.243l2.122-2.121z"></path><path d="m12 4.929-.707.707 1.414 1.414.707-.707a3.007 3.007 0 0 1 4.243 0 3.005 3.005 0 0 1 0 4.243l-2.122 2.121c-1.133 1.133-3.109 1.133-4.242 0L10.586 12l-1.414 1.414.707.707c.943.944 2.199 1.465 3.535 1.465s2.592-.521 3.535-1.465L19.071 12a5.008 5.008 0 0 0 0-7.071 5.006 5.006 0 0 0-7.071 0z"></path></svg></a></span>
+                            <span class="d-block mb-1">Total Commits <a :href="repositoryInfo.commitDashboardUrl" class="align-content-center"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill: rgba(10, 65, 255, 1)"><path d="M8.465 11.293c1.133-1.133 3.109-1.133 4.242 0l.707.707 1.414-1.414-.707-.707c-.943-.944-2.199-1.465-3.535-1.465s-2.592.521-3.535 1.465L4.929 12a5.008 5.008 0 0 0 0 7.071 4.983 4.983 0 0 0 3.535 1.462A4.982 4.982 0 0 0 12 19.071l.707-.707-1.414-1.414-.707.707a3.007 3.007 0 0 1-4.243 0 3.005 3.005 0 0 1 0-4.243l2.122-2.121z"></path><path d="m12 4.929-.707.707 1.414 1.414.707-.707a3.007 3.007 0 0 1 4.243 0 3.005 3.005 0 0 1 0 4.243l-2.122 2.121c-1.133 1.133-3.109 1.133-4.242 0L10.586 12l-1.414 1.414.707.707c.943.944 2.199 1.465 3.535 1.465s2.592-.521 3.535-1.465L19.071 12a5.008 5.008 0 0 0 0-7.071 5.006 5.006 0 0 0-7.071 0z"></path></svg></a></span>
                             <h3 class="text-primary card-title text-nowrap mb-2">@{{repositoryInfo.commitsCount}}</h3>
                             <span class="d-block mb-1">First Commit</span>
                             <span class="text-primary card-title text-nowrap mb-2" v-if="repositoryInfo.firstCommit !== ''">@{{repositoryInfo.firstCommit}}</span>
@@ -312,15 +303,7 @@
                                     <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAAXNSR0IArs4c6QAAAaJJREFUaEPtmOFOAyEQhOmTWZ9MfbLqk2nHgKFk4diZNXrJ3p/a9ID5Zpblzks5+XU5uf6SAH+dYCaQCYgOZAmJBsrDMwHZQnGCTGAw8Fq/4/OplNK+v5dSPupvr6LpD8MjE4Cwl01xb/f7QkAiAOAyhDe3Nxm+b5NBVACP6zOw5zs8Soy6FAA4fjNWbfXeROGzlcusxGgIBeDTEL9TElZqgASE+2IBLBE74pvAMAgWYHTfI34F4dbjHlDreaxlZh6AYA/13cu9F5iFx/gZ92cpuPeCBWBtztXmUgBmnWy13oPmCAAmxSbwXwC463aw15t4eAIKAHOSHwIcHSZj51D2gNwQmPod69bdOTqH5POEAbD6N5OCVT5uPe4B1b2xjLyPxuqjyE+ILICVwi7EbONSWqhBFX/Vw1FSuCB29prZNwu6kykAEMAcRGOXY/ZPSAmtniqPWjF+R/eCePptDJOoCfRCPYeS5Hq/aCRAnwj+tv6t0r9m7qR0eM9vABwuGnlDAkS6ycyVCTCuRY7JBCLdZObKBBjXIsdkApFuMnOdPoEvx+ZNMQfU5y8AAAAASUVORK5CYII=" alt="git"/>
                                 </div>
                                 <div class="dropdown">
-                                    <button
-                                        class="btn p-0"
-                                        type="button"
-                                        id="cardOpt4"
-                                        data-bs-toggle="dropdown"
-                                        aria-haspopup="true"
-                                        aria-expanded="false"
-                                    >
-                                    </button>
+                                    <button class="btn p-0" type="button" id="cardOpt4" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
                                 </div>
                             </div>
                             <span class="d-block mb-1">Total Commit Files</span>
@@ -339,15 +322,25 @@
                 <div class="col-md-6 col-lg-8 mb-4">
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title">Commit Files Distribution by User</h5>
+                            <h5 class="card-title">Repository Daily Commits Trend</h5>
                             <div class="chart-container">
                                 <canvas id="commitFilesBarChart"></canvas>
                             </div>
                         </div>
                     </div>
                 </div>
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Commit Files Distribution by User</h5>
+                            <div class="chart-container">
+                                <canvas id="commitFlowChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
+        </div>
         </div>
 
     <script>
@@ -356,26 +349,26 @@
                 el: '#repositoryInfo',
                 data: {
                     loading: true,
-                    collabs:[],
-                    repositoryInfo:{
-                      repositoryName:'',
-                      repositoryOwner:'',
-                      commitsCount:0,
-                      commitsFilesCount:0,
-                      repositoryUrl:'',
-                      commitDashboardUrl:'',
-                      repositoryMeaningFullCommitCount:0,
-                      repositoryNotMeaningFullCommitCount:0,
-                      lastCommit:'',
-                      firstCommit:'',
-                      isCloseToDeadline: false,
+                    collabs: [],
+                    repositoryInfo: {
+                        repositoryName: '',
+                        repositoryOwner: '',
+                        commitsCount: 0,
+                        commitsFilesCount: 0,
+                        repositoryUrl: '',
+                        commitDashboardUrl: '',
+                        repositoryMeaningFullCommitCount: 0,
+                        repositoryNotMeaningFullCommitCount: 0,
+                        lastCommit: '',
+                        firstCommit: '',
+                        isCloseToDeadline: false,
                         deadline: ''
                     },
                     UpdateCollaborator: {
                         githubUsername: '',
                         githubId: '',
                         avatarUrl: '',
-                        name:'',
+                        name: '',
                         university_username: '',
                         status: ''
                     },
@@ -383,17 +376,17 @@
                 },
                 methods: {
                     fetchRepoInfo() {
-                        self = this
+                        self = this;
                         const repoId = window.location.pathname.split('/').pop();
                         const url = self.fetchRepoInfoUrl.replace(':repoId', repoId);
                         fetch(url)
                             .then(response => response.json())
                             .then(data => {
                                 self.collabs = data.data.collabs;
-                                self.repositoryInfo.commitsCount= data.data.commitsCount;
+                                self.repositoryInfo.commitsCount = data.data.commitsCount;
                                 self.repositoryInfo.commitsFilesCount = data.data.commitsFilesCount;
-                                self.repositoryInfo.repositoryName= data.data.name;
-                                self.repositoryInfo.repositoryOwner= data.data.owner;
+                                self.repositoryInfo.repositoryName = data.data.name;
+                                self.repositoryInfo.repositoryOwner = data.data.owner;
                                 self.repositoryInfo.repositoryUrl = data.data.repositoryUrl;
                                 self.repositoryInfo.repositoryMeaningFullCommitCount = data.data.meaningfulCommitFilesCount;
                                 self.repositoryInfo.repositoryNotMeaningFullCommitCount = data.data.NotMeaningfulCommitFilesCount;
@@ -405,14 +398,49 @@
                                 self.loading = false;
                                 self.$nextTick(() => {
                                     self.renderChart();
+                                    self.fetchCommitFlowData(repoId);
                                 });
                             })
                             .catch(error => {
                                 console.error('Error fetching repository info:', error);
-                                self.loading = false
+                                self.loading = false;
                             });
                     },
-                    updateCollaboratorInfo(){
+                    fetchCommitFlowData(repoId) {
+                        const url = `${repoId}/commit-flow`;
+                        fetch(url)
+                            .then(response => response.json())
+                            .then(data => {
+                                const labels = Object.keys(data.data);
+                                const values = Object.values(data.data);
+
+                                const ctx = document.getElementById('commitFlowChart').getContext('2d');
+                                new Chart(ctx, {
+                                    type: 'line',
+                                    data: {
+                                        labels: labels,
+                                        datasets: [{
+                                            label: 'Commits',
+                                            data: values,
+                                            backgroundColor: 'rgb(94,0,255)',
+                                            borderColor: 'rgb(94,0,255)',
+                                            borderWidth: 1
+                                        }]
+                                    },
+                                    options: {
+                                        scales: {
+                                            y: {
+                                                beginAtZero: true
+                                            }
+                                        }
+                                    }
+                                });
+                            })
+                            .catch(error => {
+                                console.error('Error fetching commit flow data:', error);
+                            });
+                    },
+                    updateCollaboratorInfo() {
                         const repoId = window.location.pathname.split('/').pop();
                         const self = this;
                         const url = '{{ route("user.update") }}';
@@ -463,7 +491,7 @@
                             });
                     },
                     renderChart() {
-                        self = this
+                        self = this;
                         // Destroy existing charts if they exist
                         if (self.pieChart) {
                             self.pieChart.destroy();
@@ -490,7 +518,7 @@
                                     },
                                     tooltip: {
                                         callbacks: {
-                                            label: function(context) {
+                                            label: function (context) {
                                                 let total = context.dataset.data.reduce((a, b) => a + b, 0);
                                                 let value = context.raw;
                                                 let percentage = ((value / total) * 100).toFixed(2);
@@ -545,7 +573,7 @@
                                     y: {
                                         stacked: true,
                                         ticks: {
-                                            callback: function(value) {
+                                            callback: function (value) {
                                                 return value + '%'; // add % sign to the y-axis labels
                                             }
                                         }
@@ -557,7 +585,7 @@
                                     },
                                     tooltip: {
                                         callbacks: {
-                                            label: function(context) {
+                                            label: function (context) {
                                                 let total = context.dataset.data.reduce((a, b) => a + b, 0);
                                                 let value = context.raw;
                                                 return `${context.dataset.label}: ${value}%`;
@@ -568,8 +596,7 @@
                             }
                         });
                     },
-                    showModal(collaborator){
-                        console.log(collaborator);
+                    showModal(collaborator) {
                         self.UpdateCollaborator.githubUsername = collaborator.login_name;
                         self.UpdateCollaborator.githubId = collaborator.git_id;
                         self.UpdateCollaborator.avatarUrl = collaborator.avatar_url;
@@ -590,4 +617,5 @@
             });
         });
     </script>
+
 @endsection

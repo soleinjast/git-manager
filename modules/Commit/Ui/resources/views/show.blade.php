@@ -1,34 +1,6 @@
 @extends('layouts.app')
 
 @section('content')
-    <style>
-        .notebook-style {
-            background: #f7f7f9;
-            padding: 15px;
-            border-radius: 5px;
-            border: 1px solid #e1e1e8;
-            white-space: pre-wrap; /* Ensure the content wraps correctly */
-            word-wrap: break-word; /* Break long words to fit within the container */
-        }
-        .notebook-style span.added {
-            display: block;
-            background-color: #eaffea;
-            border-left: 4px solid #32cd32;
-            padding-left: 8px;
-        }
-        .notebook-style span.removed {
-            display: block;
-            background-color: #ffecec;
-            border-left: 4px solid #ff6347;
-            padding-left: 8px;
-        }
-        .notebook-style span.hunk-header {
-            display: block;
-            background-color: #e0e0e0;
-            border-left: 4px solid #666;
-            padding-left: 8px;
-        }
-    </style>
     <div id="commitDetailApp" class="container mt-4">
         <div class="card mb-4 shadow-sm" style="background:#303156;">
             <div class="card-body">
@@ -177,19 +149,19 @@
             white-space: pre-wrap; /* Ensure the content wraps correctly */
             word-wrap: break-word; /* Break long words to fit within the container */
         }
-        .notebook-style span.added {
+        .notebook-style .added {
             display: block;
             background-color: #eaffea;
             border-left: 4px solid #32cd32;
             padding-left: 8px;
         }
-        .notebook-style span.removed {
+        .notebook-style .removed {
             display: block;
             background-color: #ffecec;
             border-left: 4px solid #ff6347;
             padding-left: 8px;
         }
-        .notebook-style span.hunk-header {
+        .notebook-style .hunk-header {
             display: block;
             background-color: #e0e0e0;
             border-left: 4px solid #666;
@@ -211,19 +183,17 @@
                     formattedChanges: ''
                 },
                 mounted() {
-                    self = this
+                    self = this;
                     self.extractUrlParams();
                     self.fetchCommitDetails();
                 },
                 methods: {
                     extractUrlParams() {
-                        self = this
                         const pathArray = window.location.pathname.split('/');
                         self.repoId = pathArray[pathArray.indexOf('repository') + 1];
                         self.commitSha = pathArray[pathArray.indexOf('commits') + 1];
                     },
                     fetchCommitDetails() {
-                        self = this
                         const url = `{{ route('commit.fetch-commit-detail', ['repoId' => ':repoId', 'sha' => ':sha']) }}`
                             .replace(':repoId', self.repoId)
                             .replace(':sha', self.commitSha);
@@ -241,22 +211,31 @@
                             });
                     },
                     viewChanges(changes) {
-                        self = this
+                        self = this;
                         self.formattedChanges = self.formatChanges(changes);
                         new bootstrap.Modal(document.getElementById('changesModal')).show();
                     },
                     formatChanges(changes) {
+                        const escapeHtml = (unsafe) => {
+                            return unsafe
+                                .replace(/&/g, "&amp;")
+                                .replace(/</g, "&lt;")
+                                .replace(/>/g, "&gt;")
+                                .replace(/"/g, "&quot;")
+                                .replace(/'/g, "&#039;");
+                        };
+
                         return changes
                             .split('\n')
                             .map(line => {
                                 if (line.startsWith('+')) {
-                                    return `<span class="added">${line}</span>`;
+                                    return `<span class="added">${escapeHtml(line)}</span>`;
                                 } else if (line.startsWith('-')) {
-                                    return `<span class="removed">${line}</span>`;
+                                    return `<span class="removed">${escapeHtml(line)}</span>`;
                                 } else if (line.startsWith('@@')) {
-                                    return `<span class="hunk-header">${line}</span>`;
+                                    return `<span class="hunk-header">${escapeHtml(line)}</span>`;
                                 } else {
-                                    return `<span>${line}</span>`;
+                                    return `<span>${escapeHtml(line)}</span>`;
                                 }
                             })
                             .join('\n');
