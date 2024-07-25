@@ -25,6 +25,11 @@
                         <div>Token</div>
                     </a>
                 </li>
+                <li class="menu-item {{ \App\helpers\isActiveRoute('repository.auto-create-view') }}">
+                    <a class="menu-link" href="{{ url(route('repository.auto-create-view')) }}">
+                        <div>Repository Auto Creation</div>
+                    </a>
+                </li>
             </ul>
         </li>
     </ul>
