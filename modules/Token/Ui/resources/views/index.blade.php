@@ -70,6 +70,17 @@
                             </div>
                         </div>
                         <div v-if="tokenAccessError" class="alert alert-danger" role="alert">@{{ tokenAccessError }}</div>
+                        <div class="alert alert-info mt-3" role="alert">
+                            <h6>How to get your GitHub token:</h6>
+                            <ol>
+                                <li>Log in to your GitHub account.</li>
+                                <li>Go to <strong>Settings</strong>.</li>
+                                <li>Navigate to <strong>Developer settings</strong> &gt; <strong>Personal access tokens</strong>.</li>
+                                <li>Click <strong>Generate new token</strong>.</li>
+                                <li>Give your token a descriptive name and select the required scopes.</li>
+                                <li>Click <strong>Generate token</strong> and copy the token to use here.</li>
+                            </ol>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">

@@ -67,10 +67,10 @@
                                     </div>
                                 </div>
                             </div>
-                            <div v-if="getValidationStyle('members')" class="alert alert-danger" role="alert">@{{ getValidationError('members') }}</div>
-                            <div v-if="organizationPermissionFailed !== ''" class="alert alert-danger" role="alert">@{{organizationPermissionFailed}}</div>
-                            <div v-if="githubUsernameFailed !== ''" class="alert alert-danger" role="alert">@{{githubUsernameFailed}}</div>
                         </div>
+                        <div v-if="getValidationStyle('members')" class="alert alert-danger" role="alert">@{{ getValidationError('members') }}</div>
+                        <div v-if="organizationPermissionFailed !== ''" class="alert alert-danger" role="alert">@{{organizationPermissionFailed}}</div>
+                        <div v-if="githubUsernameFailed !== ''" class="alert alert-danger" role="alert">@{{githubUsernameFailed}}</div>
                         <button type="submit" class="btn btn-primary">Submit</button>
                     </form>
                 </div>
