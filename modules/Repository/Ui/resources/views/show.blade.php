@@ -322,7 +322,7 @@
                 <div class="col-md-6 col-lg-8 mb-4">
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title">Repository Daily Commits Trend</h5>
+                            <h5 class="card-title">Commit Files Distribution by User</h5>
                             <div class="chart-container">
                                 <canvas id="commitFilesBarChart"></canvas>
                             </div>
@@ -332,7 +332,7 @@
                 <div class="col-md-12">
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title">Commit Files Distribution by User</h5>
+                            <h5 class="card-title">Repository Daily Commits Trend</h5>
                             <div class="chart-container">
                                 <canvas id="commitFlowChart"></canvas>
                             </div>
