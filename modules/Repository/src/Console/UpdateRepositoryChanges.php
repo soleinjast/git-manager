@@ -9,10 +9,11 @@ use Modules\Repository\database\repository\RepositoryRepositoryInterface;
 use Modules\Repository\src\DTOs\RepositoryDto;
 use Modules\Repository\src\Events\RepositoryUpdate;
 use Modules\Repository\src\Exceptions\RepositoryRetrievalFailedException;
+use Carbon\Carbon;
 
 class UpdateRepositoryChanges extends Command
 {
-    public function __construct(protected Dispatcher $events,  protected RepositoryRepositoryInterface $repositoryRepository)
+    public function __construct(protected Dispatcher $events, protected RepositoryRepositoryInterface $repositoryRepository)
     {
         parent::__construct();
     }
@@ -29,8 +30,7 @@ class UpdateRepositoryChanges extends Command
      *
      * @var string
      */
-    protected $description = 'Update repository changes';
-
+    protected $description = 'Update repository changes for repositories that have not exceeded their deadline';
 
     /**
      * @throws ChunkAllRepositoriesFailedException
@@ -42,12 +42,28 @@ class UpdateRepositoryChanges extends Command
         try {
             $this->repositoryRepository->chunkAll($chunkSize, function ($repositories) {
                 foreach ($repositories as $repository) {
-                    $this->events->dispatch(new RepositoryUpdate(RepositoryDto::fromEloquent($repository)));
+                    if ($this->isWithinDeadline($repository->deadline)) {
+                        $this->events->dispatch(new RepositoryUpdate(RepositoryDto::fromEloquent($repository)));
+                    }
                 }
             });
         } catch (\Exception $e) {
             report($e);
             throw new ChunkAllRepositoriesFailedException($e->getMessage());
         }
+    }
+
+    /**
+     * Check if the repository's deadline has not been exceeded.
+     *
+     * @param string|null $deadline
+     * @return bool
+     */
+    protected function isWithinDeadline(?string $deadline): bool
+    {
+        $now = Carbon::now();
+        $deadlineDate = Carbon::parse($deadline);
+
+        return $now->lessThanOrEqualTo($deadlineDate);
     }
 }

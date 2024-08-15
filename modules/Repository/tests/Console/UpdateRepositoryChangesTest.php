@@ -494,4 +494,44 @@ class UpdateRepositoryChangesTest extends TestCase
 
         Queue::assertPushed(CreateUser::class, 2);
     }
+    public function test_command_only_updates_repositories_within_deadline()
+    {
+        Event::fake();
+        $githubToken = GithubToken::factory()->create();
+        // Create a repository that is within the deadline
+        $repositoryWithinDeadline = Repository::factory()->create([
+            'deadline' => now()->addDays(1), // Deadline is in the future
+        ]);
+
+        // Create a repository that has exceeded the deadline
+        $repositoryExceedDeadline = Repository::factory()->create([
+            'deadline' => now()->subDays(1), // Deadline is in the past
+        ]);
+
+        $repositoryRepositoryMock = \Mockery::mock(RepositoryRepositoryInterface::class);
+        $repositoryRepositoryMock->shouldReceive('chunkAll')
+            ->once()
+            ->with(10, \Mockery::on(function ($callback) use ($repositoryWithinDeadline, $repositoryExceedDeadline) {
+                $callback(collect([$repositoryWithinDeadline, $repositoryExceedDeadline]));
+                return true;
+            }));
+
+        $this->app->instance(RepositoryRepositoryInterface::class, $repositoryRepositoryMock);
+
+        $command = new UpdateRepositoryChanges(app('events'), $repositoryRepositoryMock);
+        $command->handle();
+
+        // Assert that the event was only dispatched for the repository within the deadline
+        Event::assertDispatched(RepositoryUpdate::class, function ($event) use ($repositoryWithinDeadline) {
+            return $event->repository->id === $repositoryWithinDeadline->id;
+        });
+
+        // Assert that the event was not dispatched for the repository that has exceeded the deadline
+        Event::assertNotDispatched(RepositoryUpdate::class, function ($event) use ($repositoryExceedDeadline) {
+            return $event->repository->id === $repositoryExceedDeadline->id;
+        });
+
+        // Ensure that only one event was dispatched
+        Event::assertDispatchedTimes(RepositoryUpdate::class, 1);
+    }
 }
