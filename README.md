@@ -29,7 +29,7 @@ Ensure you have the following installed on your machine:
 
 - PHP >= 8.2
 - Composer
-- Node.js & npm (optional for frontend development)
+- Node.js & npm (for frontend development)
 
 ### Project Setup Instructions
 
